@@ -3,6 +3,7 @@
     // File Layout
     "rootDir": "./src",
     "outDir": "./dist",
+    "baseUrl": "src"
 
     // Environment Settings
     "module": "esnext",
@@ -39,8 +40,10 @@
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
+    "noImplicitAny": true,
     "moduleDetection": "force",
     "moduleResolution": "node",
     "skipLibCheck": true,
   }
+  "include": ["src/**/*"],
 }
