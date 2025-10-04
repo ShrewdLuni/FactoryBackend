@@ -1,0 +1,17 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: factory_postgres
+    restart: always
+    env_file:
+      - .env
+    environment:
+      PGDATA: /var/lib/postgresql/factorydata
+    ports:
+      - "5433:5432"
+    volumes:
+      - factory_pg_data:/var/lib/postgresql/factorydata
+
+volumes:
+  factory_pg_data:
+
