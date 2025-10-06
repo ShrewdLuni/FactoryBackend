@@ -6,9 +6,9 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsx watch src/server.ts"
-    "dev": "tsx src/helpers/migrate.ts"
-    "dev": "tsx src/helpers/rollback.ts"
+    "dev": "tsx watch src/server.ts",
+    "migrate": "tsx src/helpers/migrate.ts",
+    "rollback": "tsx src/helpers/rollback.ts"
   },
   "author": "shrewd",
   "license": "",
