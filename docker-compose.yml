@@ -12,6 +12,38 @@ services:
     volumes:
       - factory_pg_data:/var/lib/postgresql/factorydata
 
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: factory_backend
+    restart: always
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+  frontend:
+    build:
+      context: ../FactoryFrontend
+      dockerfile: Dockerfile
+    container_name: factory_frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ../FactoryFrontend:/app
+      - /app/node_modules
+
 volumes:
   factory_pg_data:
 
