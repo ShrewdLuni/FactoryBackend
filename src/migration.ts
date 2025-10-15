@@ -15,7 +15,7 @@ const __dirname = dirname(__filename);
 
 const MIGRATIONS_DIR = path.join(__dirname, "migrations");
 
-export const migrate = async (): Promise<void> => {
+export const migrate = async (): Promise<boolean> => {
   const client = await pool.connect();
   try {
     await client.query(`
@@ -39,10 +39,11 @@ export const migrate = async (): Promise<void> => {
         console.log(`Applied migration: ${file}`);
       }
     }
-
     console.log("All migrations applied successfully!");
+    return true
   } catch (error) {
     console.error("Migration failed:", error);
+    return false
   } finally {
     client.release();
   }
