@@ -104,3 +104,19 @@ export const login = async (req: express.Request, res: express.Response) => {
     return res.sendStatus(400);
   }
 };
+
+export const whoami = async (req: express.Request, res: express.Response) => {
+  try {
+    console.log("whoami called");
+    if (!req.userId) return res.sendStatus(401);
+
+    const user = await getUserById(req.userId!);
+
+    if (!user) return res.sendStatus(404);
+
+    res.json(user);
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(500);
+  }
+};
