@@ -1,12 +1,14 @@
 import express from "express"
 import authRouter from "./authentication"
 import productRouter from "./products"
+import userRouter from "./users"
 import databaseRouter from "./database"
 
 const router = express.Router()
 
 router.use('/auth', authRouter)
-router.use('/product', productRouter)
+router.use('/products', productRouter)
+router.use('/users', userRouter)
 router.use('/db', databaseRouter)
 
 export default router;

@@ -34,7 +34,7 @@ export const createUser = async (data: InsertUser): Promise<User> => {
   return result.rows[0];
 }
 
-export const getAllUsers = async(): Promise<User[]> => { 
+export const getUsers = async(): Promise<User[]> => { 
   const result = await query("SELECT * FROM users");
   return result.rows;
 }

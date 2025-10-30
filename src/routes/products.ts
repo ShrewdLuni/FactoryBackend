@@ -5,6 +5,6 @@ import { authenticate } from 'middleware/auth';
 const router = express.Router();
 
 router.post('/', authenticate, createProductController);
-router.get('/', getProductsController)
+router.get('/', authenticate, getProductsController)
 
 export default router;

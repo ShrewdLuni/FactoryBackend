@@ -9,6 +9,7 @@ export const createProductController = async (req: express.Request, res: express
     if(!product){
       return res.sendStatus(400);
     }
+
     const result = await createProduct(product);
     return result;
   } catch(error) {
@@ -18,10 +19,9 @@ export const createProductController = async (req: express.Request, res: express
 
 export const getProductsController = async (req: express.Request, res: express.Response) => {
   try {
-    const result = await getProducts();
-    return res.status(200).json(result);
-  }
-  catch (error){
+    const products = await getProducts();
+    return res.status(200).json(products);
+  } catch (error){
     console.log(error);
     return res.sendStatus(500);
   }
