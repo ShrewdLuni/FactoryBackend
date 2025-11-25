@@ -105,6 +105,11 @@ export const login = async (req: express.Request, res: express.Response) => {
   }
 };
 
+export const logout = async (req: express.Request, res: express.Response) => {
+  res.clearCookie("token", { httpOnly: true });
+  res.status(200).json({message: "Logged out successfully"}).end();
+}
+
 export const whoami = async (req: express.Request, res: express.Response) => {
   try {
     console.log("whoami called");

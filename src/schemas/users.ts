@@ -13,7 +13,7 @@ export const userSchema = z.object({
   phone: z.string().optional(),
   gender: z.enum(["Male", "Female", "Other"]).optional(), 
   department: z.string().optional(), 
-  role: z.enum(["Superuser", "Manager", "Worker", "Observer"]),
+  role: z.enum(["Superuser", "Manager", "Worker", "Observer"]).optional(),
 });
 
 export const insertUserSchema = userSchema.omit({ id: true, fullName: true })
