@@ -35,27 +35,27 @@ export const createUser = async (data: InsertUser): Promise<User> => {
 }
 
 export const getUsers = async(): Promise<User[]> => { 
-  const result = await query("SELECT * FROM users");
+  const result = await query("SELECT * FROM users_api");
   return result.rows;
 }
 
 export const getUserById = async (id: number): Promise<User> => {
-  const result = await query(`SELECT * FROM users WHERE id = $1 LIMIT 1`, [id])
+  const result = await query(`SELECT * FROM users_api WHERE id = $1 LIMIT 1`, [id])
   return result.rows[0];
 }
 
 export const getUserByCode = async (code: number): Promise<User> => {
-  const result = await query(`SELECT * FROM users WHERE code = $1 LIMIT 1`, [code])
+  const result = await query(`SELECT * FROM users_api WHERE code = $1 LIMIT 1`, [code])
   return result.rows[0];
 }
 
 export const getUserByUsername = async (username: string): Promise<User> => {
-  const result = await query(`SELECT * FROM users WHERE username = $1 LIMIT 1`, [username])
+  const result = await query(`SELECT * FROM users_api WHERE username = $1 LIMIT 1`, [username])
   return result.rows[0];
 }
 
 export const getUserWithAuthByCode = async (code: number): Promise<User & Authentication> => {
-  const result = await query((`SELECT u.*, a.hash, a.salt FROM users u JOIN authentication a on a.employee_id = u.id WHERE u.code = $1 LIMIT 1`), [code])
+  const result = await query((`SELECT * FROM users u JOIN authentication a on a.employee_id = u.id WHERE u.code = $1 LIMIT 1`), [code])
   return result.rows[0];
 }
 

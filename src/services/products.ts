@@ -19,6 +19,6 @@ export const getProduct = async () => {
 }
 
 export const getProducts = async (): Promise<Product[]> => {
-  const result = await query("SELECT * FROM products")
+  const result = await query("SELECT * FROM products_api")
   return result.rows;
 }

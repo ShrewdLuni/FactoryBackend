@@ -44,4 +44,3 @@ CREATE TABLE IF NOT EXISTS batches (
   product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
   progress_status batch_progress NOT NULL DEFAULT 'Not started'
 );
-
