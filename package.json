@@ -7,6 +7,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
     "migrate": "tsx src/helpers/migrate.ts",
     "rollback": "tsx src/helpers/rollback.ts"
   },
