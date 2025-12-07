@@ -6,7 +6,7 @@ CREATE TYPE batch_progress as ENUM ('Not started', 'In progress', 'Completed');
 
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
-  code INTEGER UNIQUE,
+  code TEXT UNIQUE,
   username TEXT UNIQUE,
   first_name TEXT NOT NULL,
   last_name TEXT NOT NULL,
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS authentication (
 
 CREATE TABLE IF NOT EXISTS products (
   id SERIAL PRIMARY KEY,
-  code INTEGER UNIQUE NOT NULL,
+  code TEXT UNIQUE NOT NULL,
   category TEXT,
   name TEXT,
   measure_unit TEXT DEFAULT 'Pairs'
