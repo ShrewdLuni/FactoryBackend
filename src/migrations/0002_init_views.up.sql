@@ -43,3 +43,30 @@ SELECT
   name,
   measure_unit AS "measureUnit"
 FROM products;
+
+CREATE VIEW batches_api AS 
+SELECT
+  id, 
+  name,
+  product_id,
+  size,
+  progress_status AS "progressStatus",
+  updated_at AS "updatedAt",
+  created_at AS "createdAt"
+FROM batches;
+
+CREATE VIEW batches_with_product_api AS 
+SELECT
+  b.id,
+  b.name,
+  b.product_id AS "productId",
+  b.size AS "size",
+  b.progress_status AS "progressStatus",
+  b.updated_at AS "updatedAt",
+  b.created_at AS "createdAt",
+  p.name AS "productName"
+FROM batches b
+JOIN products p ON p.id = b.product_id;
+
+
+
