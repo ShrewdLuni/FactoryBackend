@@ -4,8 +4,10 @@ export const batchSchema = z.object({
   id: z.number().int(), 
   name: z.string().optional(), 
   productId: z.number().int(), 
+  assignedMasterId: z.number().int(),
   size: z.number().int().default(100), 
   progressStatus: z.enum(["Not started", "In progress", "Completed"]), 
+  plannedFor: z.coerce.date().default(() => new Date()),
   updatedAt: z.date().default(() => new Date()), 
   createdAt: z.date().default(() => new Date()), 
 }); 

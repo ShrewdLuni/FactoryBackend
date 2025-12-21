@@ -60,13 +60,14 @@ SELECT
   b.id,
   b.name,
   b.product_id AS "productId",
+  b.assigned_master_id AS "assignedMasterId",
   b.size AS "size",
   b.progress_status AS "progressStatus",
+  b.planned_for AS "plannedFor",
   b.updated_at AS "updatedAt",
   b.created_at AS "createdAt",
-  p.name AS "productName"
+  p.name AS "productName",
+  u.full_name AS "assignedMasterName"
 FROM batches b
-JOIN products p ON p.id = b.product_id;
-
-
-
+JOIN products p ON p.id = b.product_id
+JOIN users u ON u.id = b.assigned_master_id;

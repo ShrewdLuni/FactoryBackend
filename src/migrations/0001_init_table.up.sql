@@ -1,5 +1,5 @@
 CREATE TYPE gender as ENUM ('Male', 'Female', 'Other'); 
-CREATE TYPE role as ENUM ('Superuser', 'Manager', 'Worker', 'Observer'); 
+CREATE TYPE role as ENUM ('Superuser', 'Master', 'Manager', 'Worker', 'Observer'); 
 CREATE TYPE batch_progress as ENUM ('Not started', 'In progress', 'Completed'); 
 
 CREATE TABLE IF NOT EXISTS users (
@@ -40,11 +40,20 @@ CREATE TABLE IF NOT EXISTS batches (
   id SERIAL PRIMARY KEY, 
   name TEXT, 
   product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE, 
-  size INTEGER DEFAULT 100, 
+  assigned_master_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  size INTEGER NOT NULL DEFAULT 100, 
   progress_status batch_progress NOT NULL DEFAULT 'Not started', 
+  planned_for date NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(), 
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 ); 
+
+CREATE TABLE IF NOT EXISTS qr_codes (
+  id SERIAL PRIMARY KEY,
+  name TEXT,
+  is_taken BOOLEAN DEFAULT false,
+  resource TEXT
+);
 
 CREATE OR REPLACE FUNCTION set_batch_name() 
 RETURNS TRIGGER AS $$ 
