@@ -10,7 +10,7 @@ export const createBatch = async (data: InsertBatch) => {
 export const createBatches = async (batch: InsertBatch, amount: number) => {
   const { assignments, values } = buildBatchInsertQuery(batch, amount)
 
-  const result = await query(`INSERT INTO batches (name, size, product_id) VALUES ${assignments} RETURNING *`, values);
+  const result = await query(`INSERT INTO batches (name, size, product_id, assigned_master_id, planned_for) VALUES ${assignments} RETURNING *`, values);
   console.log(result.rows)
   return result.rows;
 };
