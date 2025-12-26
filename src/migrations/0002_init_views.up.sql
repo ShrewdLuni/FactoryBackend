@@ -71,3 +71,11 @@ SELECT
 FROM batches b
 JOIN products p ON p.id = b.product_id
 JOIN users u ON u.id = b.assigned_master_id;
+
+CREATE VIEW qr_codes_api AS
+SELECT
+  id AS "id",
+  is_taken AS "isTaken",
+  name AS "name",
+  resource AS "resource"
+FROM qr_codes;
