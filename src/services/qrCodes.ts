@@ -11,3 +11,12 @@ export const getQRCodes = async () => {
   return result.rows;
 };
 
+export const getQRCode = async (id: number) => {
+  const result = await query(`SELECT * FROM qr_codes_api WHERE id = $1`, [id]);
+  return result.rows[0];
+}
+
+export const activateQRCode = async (id: number, resource: string) => {
+  const result = await query(`UPDATE qr_codes SET resource = $1 WHERE id = $2 RETURNING *`, [resource, id])
+  return result.rows[0];
+}
