@@ -15,8 +15,23 @@ export const createBatches = async (batch: InsertBatch, amount: number) => {
   return result.rows;
 };
 
-export const getBatch = async () => {
+export const scanBatch = async (id: number) => {
+  try {
+    const result = await query(`SELECT advance_batch_progress($1) as new_status`, [id]);
 
+    if (result.rows.length === 0) {
+      throw new Error('Batch not found')
+    }
+
+    return result.rows[0];
+  } catch (error) {
+    throw error;
+  }
+}
+
+export const getBatch = async (id: number) => {
+  const result = await query(`SELECT * FROM batches_api WHERE id = $1`, [id])
+  return result.rows[0];
 }
 
 export const getAllBatches = async () => {
