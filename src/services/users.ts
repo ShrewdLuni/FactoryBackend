@@ -1,12 +1,14 @@
 import { query } from "db"
 import { buildSetClause, buildWhereClause } from "utils/models/clauseBuilders"
-import type { User, InsertUser } from "schemas/users"
+import type { InsertUser, DatabaseUser, User } from "schemas/users"
 import type { Authentication } from "schemas/authentication"
 
-export const createUser = async (data: InsertUser): Promise<User> => {
+export const createUser = async (data: InsertUser): Promise<DatabaseUser> => {
   const result = await query(`
     INSERT INTO users (
+    guid,
     code,
+    code_drfo,
     username,
     first_name,
     last_name,
@@ -15,17 +17,20 @@ export const createUser = async (data: InsertUser): Promise<User> => {
     email,
     phone,
     gender,
-    department) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
-  [   data.code ?? null, 
-      data.username ?? null, 
+    department) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`,
+    [ data.guid, 
+      data.code, 
+      data.taxCode, 
+      data.username, 
       data.firstName, 
       data.lastName, 
-      data.patronymic ?? null, 
-      data.dateOfBirth ?? null, 
+      data.patronymic, 
+      data.dateOfBirth, 
       data.email, 
-      data.phone ?? null, 
-      data.gender ?? null, 
-      data.department ?? null])
+      data.phone, 
+      data.gender, 
+      data.department
+    ])
 
   if (!result.rows.length) {
     throw new Error("User already exists");
@@ -34,38 +39,38 @@ export const createUser = async (data: InsertUser): Promise<User> => {
   return result.rows[0];
 }
 
-export const getUsers = async(): Promise<User[]> => { 
-  const result = await query("SELECT * FROM users_api");
+export const getUsers = async(): Promise<DatabaseUser[]> => { 
+  const result = await query("SELECT * FROM users");
   return result.rows;
 }
 
-export const getUserById = async (id: number): Promise<User> => {
-  const result = await query(`SELECT * FROM users_api WHERE id = $1 LIMIT 1`, [id])
+export const getUserById = async (id: number): Promise<DatabaseUser> => {
+  const result = await query(`SELECT * FROM users WHERE id = $1 LIMIT 1`, [id])
   return result.rows[0];
 }
 
-export const getUserByCode = async (code: number): Promise<User> => {
-  const result = await query(`SELECT * FROM users_api WHERE code = $1 LIMIT 1`, [code])
+export const getUserByCode = async (code: string): Promise<DatabaseUser> => {
+  const result = await query(`SELECT * FROM users WHERE code = $1 LIMIT 1`, [code])
   return result.rows[0];
 }
 
-export const getUserByUsername = async (username: string): Promise<User> => {
-  const result = await query(`SELECT * FROM users_api WHERE username = $1 LIMIT 1`, [username])
+export const getUserByUsername = async (username: string): Promise<DatabaseUser> => {
+  const result = await query(`SELECT * FROM users WHERE username = $1 LIMIT 1`, [username])
   return result.rows[0];
 }
 
-export const getUserWithAuthByCode = async (code: number): Promise<User & Authentication> => {
+export const getUserWithAuthByCode = async (code: string): Promise<DatabaseUser & Authentication> => {
   const result = await query((`SELECT * FROM users u JOIN authentication a on a.employee_id = u.id WHERE u.code = $1 LIMIT 1`), [code])
   return result.rows[0];
 }
 
-export const getUserWithAuthByUsername = async (username: string): Promise<User & Authentication> => {
+export const getUserWithAuthByUsername = async (username: string): Promise<DatabaseUser & Authentication> => {
   const result = await query(`SELECT u.*, a.hash, a.salt FROM users u JOIN authentication a on a.employee_id = u.id WHERE u.username = $1 LIMIT 1`, [username])
   return result.rows[0];
 }
 
 // WIP 
-export const getUser = async (identity: Partial<User>): Promise<User> => { 
+export const getUser = async (identity: Partial<User>): Promise<DatabaseUser> => { 
   const where  = buildWhereClause(identity)
 
   const result = await query((`SELECT * FROM users ${where.clause} LIMIT 1`), where.values)

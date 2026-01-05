@@ -9,13 +9,13 @@ import {
   getUserById,
 } from "services/users";
 import { random, authentication } from "utils/authentication";
-import { loginSchema, registerSchema } from "schemas/users";
+import { LoginSchema, RegisterSchema} from "schemas/users";
 import type { InsertAuthentication } from "schemas/authentication";
 import jwt from "jsonwebtoken";
 
 export const register = async (req: express.Request, res: express.Response) => {
   try {
-    const { user, password } = registerSchema.parse(req.body);
+    const { user, password } = RegisterSchema.parse(req.body);
 
     let existingUser;
 
@@ -58,7 +58,7 @@ export const register = async (req: express.Request, res: express.Response) => {
 export const login = async (req: express.Request, res: express.Response) => {
   try {
     console.log(req.body);
-    const { user, password } = loginSchema.parse(req.body);
+    const { user, password } = LoginSchema.parse(req.body);
     console.log(user, password);
 
     if (!user.code && !user.username) {
