@@ -12,26 +12,28 @@ CREATE TYPE batch_progress as ENUM (
 'Labeling Workshop(Finished)', 
 'Packaging Workshop(Processing)', 
 'Packaging Workshop(Finished)', 
-'Completed'); 
+'Completed'
+); 
 
--- Tables
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY, 
+  guid TEXT UNIQUE,
   code TEXT UNIQUE, 
+  code_drfo TEXT UNIQUE,
   username TEXT UNIQUE, 
   first_name TEXT NOT NULL, 
   last_name TEXT NOT NULL, 
-  patronymic TEXT, 
+  patronymic TEXT DEFAULT NULL, 
   full_name TEXT GENERATED ALWAYS AS (
     first_name || ' ' || last_name || 
       CASE WHEN patronymic IS NULL THEN '' ELSE ' ' || patronymic END
   ) STORED, 
-  date_of_birth DATE, 
-  email TEXT, 
-  phone TEXT, 
-  gender gender, 
-  department TEXT, 
-  role role 
+  date_of_birth DATE DEFAULT NULL, 
+  email TEXT DEFAULT NULL, 
+  phone TEXT DEFAULT NULL, 
+  gender gender NOT NULL DEFAULT 'Other', 
+  department TEXT DEFAULT NULL, 
+  role role NOT NULL DEFAULT 'Worker'
 ); 
 
 CREATE TABLE IF NOT EXISTS authentication (
@@ -45,8 +47,8 @@ CREATE TABLE IF NOT EXISTS products (
   code TEXT UNIQUE NOT NULL, 
   category TEXT, 
   name TEXT, 
+  active BOOLEAN,
   measure_unit TEXT DEFAULT 'Pairs'
-  -- quantity INTEGER DEFAULT 0
 ); 
 
 CREATE TABLE IF NOT EXISTS batches (
@@ -66,6 +68,12 @@ CREATE TABLE IF NOT EXISTS qr_codes (
   name TEXT,
   resource TEXT,
   is_taken BOOLEAN GENERATED ALWAYS AS (resource IS NOT NULL) STORED
+);
+
+CREATE TABLE IF NOT EXISTS workstations (
+  id SERIAL PRIMARY KEY,
+  name TEXT,
+  qr_code INTEGER NOT NULL REFERENCES qr_codes(id) ON DELETE CASCADE
 );
 
 -- Functions
