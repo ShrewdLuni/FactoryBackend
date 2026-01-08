@@ -11,7 +11,7 @@ export const getQRCodes = async () => {
   return result.rows;
 };
 
-export const getQRCode = async (id: number) => {
+export const getQRCodeById = async (id: number) => {
   const result = await query(`SELECT * FROM qr_codes_api WHERE id = $1`, [id]);
   return result.rows[0];
 }
