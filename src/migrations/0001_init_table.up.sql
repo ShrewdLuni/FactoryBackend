@@ -2,16 +2,11 @@ CREATE TYPE gender as ENUM ('Male', 'Female', 'Other');
 CREATE TYPE role as ENUM ('Superuser', 'Master', 'Manager', 'Worker', 'Observer'); 
 CREATE TYPE batch_progress as ENUM (
 'Inactive', 
-'Knitting Workshop(Processing)', 
-'Knitting Workshop(Finished)', 
-'Sewing Workshop(Processing)', 
-'Sewing Workshop(Finished)', 
-'Molding Workshop(Processing)', 
-'Molding Workshop(Finished)', 
-'Labeling Workshop(Processing)', 
-'Labeling Workshop(Finished)', 
-'Packaging Workshop(Processing)', 
-'Packaging Workshop(Finished)', 
+'Knitting Workshop',
+'Sewing Workshop',
+'Molding Workshop',
+'Labeling Workshop', 
+'Packaging Workshop', 
 'Completed'
 ); 
 
@@ -131,17 +126,12 @@ BEGIN
   END IF;
   
   new_status := CASE current_status
-    WHEN 'Inactive' THEN 'Knitting Workshop(Processing)'
-    WHEN 'Knitting Workshop(Processing)' THEN 'Knitting Workshop(Finished)'
-    WHEN 'Knitting Workshop(Finished)' THEN 'Sewing Workshop(Processing)'
-    WHEN 'Sewing Workshop(Processing)' THEN 'Sewing Workshop(Finished)'
-    WHEN 'Sewing Workshop(Finished)' THEN 'Molding Workshop(Processing)'
-    WHEN 'Molding Workshop(Processing)' THEN 'Molding Workshop(Finished)'
-    WHEN 'Molding Workshop(Finished)' THEN 'Labeling Workshop(Processing)'
-    WHEN 'Labeling Workshop(Processing)' THEN 'Labeling Workshop(Finished)'
-    WHEN 'Labeling Workshop(Finished)' THEN 'Packaging Workshop(Processing)'
-    WHEN 'Packaging Workshop(Processing)' THEN 'Packaging Workshop(Finished)'
-    WHEN 'Packaging Workshop(Finished)' THEN 'Completed'
+    WHEN 'Inactive' THEN 'Knitting Workshop'
+    WHEN 'Knitting Workshop' THEN 'Sewing Workshop'
+    WHEN 'Sewing Workshop' THEN 'Molding Workshop'
+    WHEN 'Molding Workshop' THEN 'Labeling Workshop'
+    WHEN 'Labeling Workshop' THEN 'Packaging Workshop'
+    WHEN 'Packaging Workshop' THEN 'Completed'
     ELSE current_status
   END;
   
