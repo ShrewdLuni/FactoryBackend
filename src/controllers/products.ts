@@ -1,16 +1,17 @@
 import { createProduct, getProducts } from "services/products";
 import express from "express"
-import { insertProductSchema } from "schemas/products";
+import { InsertProductSchema, ProductFromDatabase, ProductsFromDatabase } from "schemas/products";
 
 export const createProductController = async (req: express.Request, res: express.Response) => {
   try {
-    const product = insertProductSchema.parse(req.body);
+    const product = InsertProductSchema.parse(req.body);
 
     if(!product){
       return res.sendStatus(400);
     }
 
-    const result = await createProduct(product);
+    const databaseResult = await createProduct(product);
+    const result = ProductFromDatabase.parse(databaseResult);
     return result;
   } catch(error) {
     return res.sendStatus(500);
@@ -19,7 +20,8 @@ export const createProductController = async (req: express.Request, res: express
 
 export const getProductsController = async (req: express.Request, res: express.Response) => {
   try {
-    const products = await getProducts();
+    const result = await getProducts();
+    const products = ProductsFromDatabase.parse(result);
     return res.status(200).json(products);
   } catch (error){
     console.log(error);
