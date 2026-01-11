@@ -40,9 +40,9 @@ CREATE TABLE IF NOT EXISTS authentication (
 CREATE TABLE IF NOT EXISTS products (
   id SERIAL PRIMARY KEY, 
   code TEXT UNIQUE NOT NULL, 
-  category TEXT, 
-  name TEXT, 
-  active BOOLEAN,
+  category TEXT DEFAULT NULL, 
+  name TEXT DEFAULT NULL, 
+  is_active BOOLEAN DEFAULT TRUE, 
   measure_unit TEXT DEFAULT 'Pairs'
 ); 
 
