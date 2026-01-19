@@ -1,7 +1,7 @@
 import { z } from "zod"
 
 const genderEnum = z.enum(["Male", "Female", "Other"]);
-const roleEnum = z.enum(["Superuser", "Manager", "Worker", "Observer"]);
+const roleEnum = z.enum(["Superuser", "Master", "Manager", "Worker", "Observer"]);
 
 export const UserSchema = z.object({
   id: z.number(),
@@ -78,7 +78,7 @@ export const UserFromExternalSchema = ExternalUserSchema.transform((u): InsertUs
 
 export const UsersFromExternalSchema = UserFromExternalSchema.array();
 
-export const UserFromDatabaseSchema = DatabaseUserSchema.transform((db) => ({
+export const UserFromDatabase = DatabaseUserSchema.transform((db) => ({
   id: db.id,
   guid: db.guid,
   code: db.code,
@@ -119,7 +119,7 @@ export const InsertUserSchema = UserSchema.omit({ id: true, fullName: true })
 export type User = z.infer<typeof UserSchema>;
 export type DatabaseUser = z.infer<typeof DatabaseUserSchema>;
 
-export const UsersFromDatabase = UserFromDatabaseSchema.array();
+export const UsersFromDatabase = UserFromDatabase.array();
 export const DatabaseFromUsers = DatabaseFromUserSchema.array();
 
 export type InsertUser = z.infer<typeof InsertUserSchema>;

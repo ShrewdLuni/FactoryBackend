@@ -4,14 +4,14 @@ export const QRCodeSchema = z.object({
   id: z.number().int(),
   isTaken: z.boolean().default(false),
   name: z.string().optional(),
-  resource: z.string().optional(),
+  resource: z.string().optional().nullable(),
 });
 
 export const DatabaseQRCodeSchema = z.object({
   id: z.number().int(),
   is_taken: z.boolean().default(false),
   name: z.string().optional(),
-  resource: z.string().optional(),
+  resource: z.string().optional().nullable(),
 })
 
 export const QRCodeFromDatabase = DatabaseQRCodeSchema.transform((db) => ({

@@ -59,6 +59,41 @@ export const getUserByUsername = async (username: string): Promise<DatabaseUser>
   return result.rows[0];
 }
 
+export const updateUserById = async (id: number, data: InsertUser): Promise<DatabaseUser> => {
+  const result = await query(`UPDATE users SET 
+    guid = $2,
+    code = $3,
+    code_drfo = $4,
+    username = $5,
+    first_name = $6,
+    last_name = $7,
+    patronymic = $8,
+    date_of_birth = $9,
+    email = $10,
+    phone = $11,
+    gender = $12,
+    department = $13,
+    role = $14
+    WHERE id = $1 RETURNING *`, 
+    [
+      id, 
+      data.guid, 
+      data.code, 
+      data.taxCode, 
+      data.username, 
+      data.firstName, 
+      data.lastName,
+      data.patronymic,
+      data.dateOfBirth,
+      data.email,
+      data.phone,
+      data.gender,
+      data.department,
+      data.role,
+    ]);
+  return result.rows[0];
+}
+
 export const getUserWithAuthByCode = async (code: string): Promise<DatabaseUser & Authentication> => {
   const result = await query((`SELECT * FROM users u JOIN authentication a on a.employee_id = u.id WHERE u.code = $1 LIMIT 1`), [code])
   return result.rows[0];
