@@ -1,7 +1,13 @@
-import { z } from "zod"
+import { z } from "zod";
 
 const genderEnum = z.enum(["Male", "Female", "Other"]);
-const roleEnum = z.enum(["Superuser", "Master", "Manager", "Worker", "Observer"]);
+const roleEnum = z.enum([
+  "Superuser",
+  "Master",
+  "Manager",
+  "Worker",
+  "Observer",
+]);
 
 export const UserSchema = z.object({
   id: z.number(),
@@ -16,8 +22,8 @@ export const UserSchema = z.object({
   dateOfBirth: z.coerce.date().optional().nullable(),
   email: z.email().optional().nullable(),
   phone: z.string().optional().nullable(),
-  gender: genderEnum.optional().nullable().default("Other"), 
-  department: z.string().optional().nullable(), 
+  gender: genderEnum.optional().nullable().default("Other"),
+  department: z.string().optional().nullable(),
   role: roleEnum.optional().nullable(),
 });
 
@@ -34,20 +40,20 @@ export const DatabaseUserSchema = z.object({
   date_of_birth: z.coerce.date().optional().nullable(),
   email: z.email().optional().nullable(),
   phone: z.string().optional().nullable(),
-  gender: genderEnum.optional().nullable(), 
-  department: z.string().optional().nullable(), 
+  gender: genderEnum.optional().nullable().default("Other"),
+  department: z.string().optional().nullable(),
   role: roleEnum.optional().nullable(),
 });
 
-const emptyToNull = z.string().transform((val) => (val.trim() === "" ? null : val));
-
-const dateOrNull = z
+const emptyToNull = z
   .string()
-  .transform((val) => {
-    if (!val || val.trim() === "") return null;
-    const d = new Date(val);
-    return isNaN(d.getTime()) ? null : d;
-  });
+  .transform((val) => (val.trim() === "" ? null : val));
+
+const dateOrNull = z.string().transform((val) => {
+  if (!val || val.trim() === "") return null;
+  const d = new Date(val);
+  return isNaN(d.getTime()) ? null : d;
+});
 
 export const ExternalUserSchema = z.object({
   GUID: emptyToNull,
@@ -60,21 +66,23 @@ export const ExternalUserSchema = z.object({
   SName: emptyToNull.optional().nullable(),
 });
 
-export const UserFromExternalSchema = ExternalUserSchema.transform((u): InsertUser => ({
-  guid: u.GUID,
-  code: u.Code,
-  taxCode: u.CodeDRFO,
-  username: null,
-  firstName: u.FName ?? "",
-  lastName: u.LName ?? "",
-  patronymic: u.SName ?? null,
-  dateOfBirth: u.BDate,
-  email: null,
-  phone: null,
-  gender: "Other",
-  department: null,
-  role: "Worker",
-}));
+export const UserFromExternalSchema = ExternalUserSchema.transform(
+  (u): InsertUser => ({
+    guid: u.GUID,
+    code: u.Code,
+    taxCode: u.CodeDRFO,
+    username: null,
+    firstName: u.FName ?? "",
+    lastName: u.LName ?? "",
+    patronymic: u.SName ?? null,
+    dateOfBirth: u.BDate,
+    email: null,
+    phone: null,
+    gender: "Other",
+    department: null,
+    role: "Worker",
+  }),
+);
 
 export const UsersFromExternalSchema = UserFromExternalSchema.array();
 
@@ -114,7 +122,7 @@ export const DatabaseFromUserSchema = UserSchema.transform((user) => ({
   role: user.role,
 }));
 
-export const InsertUserSchema = UserSchema.omit({ id: true, fullName: true })
+export const InsertUserSchema = UserSchema.omit({ id: true, fullName: true });
 
 export type User = z.infer<typeof UserSchema>;
 export type DatabaseUser = z.infer<typeof DatabaseUserSchema>;
@@ -124,23 +132,25 @@ export const DatabaseFromUsers = DatabaseFromUserSchema.array();
 
 export type InsertUser = z.infer<typeof InsertUserSchema>;
 
-export const RegisterSchema = InsertUserSchema 
-  .extend({ password: z.string().min(8) })
-  .transform(({ password, ...user }) => ({ user, password }));
+export const RegisterSchema = InsertUserSchema.extend({
+  password: z.string().min(8),
+}).transform(({ password, ...user }) => ({ user, password }));
 
-export const LoginSchema = z.union([
-  z.object({
-    code: z.string(),
-    password: z.string().min(8),
-  }),
-  z.object({
-    username: z.string(),
-    password: z.string().min(8),
-  }),
-]).transform((data) => ({
-  user: {
-    code: 'code' in data ? data.code : undefined,
-    username: 'username' in data ? data.username : undefined,
-  },
-  password: data.password,
-}));
+export const LoginSchema = z
+  .union([
+    z.object({
+      code: z.string(),
+      password: z.string().min(8),
+    }),
+    z.object({
+      username: z.string(),
+      password: z.string().min(8),
+    }),
+  ])
+  .transform((data) => ({
+    user: {
+      code: "code" in data ? data.code : undefined,
+      username: "username" in data ? data.username : undefined,
+    },
+    password: data.password,
+  }));

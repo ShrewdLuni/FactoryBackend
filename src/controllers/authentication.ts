@@ -9,7 +9,7 @@ import {
   getUserById,
 } from "services/users";
 import { random, authentication } from "utils/authentication";
-import { LoginSchema, RegisterSchema} from "schemas/users";
+import { LoginSchema, RegisterSchema, UserFromDatabase} from "schemas/users";
 import type { InsertAuthentication } from "schemas/authentication";
 import jwt from "jsonwebtoken";
 
@@ -48,7 +48,9 @@ export const register = async (req: express.Request, res: express.Response) => {
 
     console.log(addedUser, addedAuth);
 
-    return res.status(200).json(addedUser).end();
+    const result = UserFromDatabase.parse(addedUser)
+
+    return res.status(200).json(result).end();
   } catch (error) {
     console.log(error);
     return res.status(400).json({ message: "Invalide data provided" });
@@ -119,7 +121,9 @@ export const whoami = async (req: express.Request, res: express.Response) => {
 
     if (!user) return res.sendStatus(404);
 
-    res.json(user);
+    const result = UserFromDatabase.parse(user);
+
+    res.json(result);
   } catch (error) {
     console.error(error);
     res.sendStatus(500);
