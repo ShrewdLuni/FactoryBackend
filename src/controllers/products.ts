@@ -1,4 +1,4 @@
-import { createProduct, getProducts } from "services/products";
+import { createProduct, getProducts, updateProduct } from "services/products";
 import express from "express"
 import { InsertProductSchema, ProductFromDatabase, ProductsFromDatabase } from "schemas/products";
 
@@ -26,5 +26,24 @@ export const getProductsController = async (req: express.Request, res: express.R
   } catch (error){
     console.log(error);
     return res.sendStatus(500);
+  }
+}
+
+export const updateProductController = async (req: express.Request, res: express.Response) => {
+  try {
+    if (req.params.id == undefined) {
+      return res.status(400).json({message: "Invalid data was provided"})
+    }
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({message: "Invalid data was provided"})
+    }
+    const data = InsertProductSchema.parse(req.body); 
+    const result = await updateProduct(id, data)
+    const product = ProductFromDatabase.parse(result); 
+    return res.status(200).json(product);
+  } catch (error) {
+    console.log(error);
+    return res.status(500);
   }
 }

@@ -45,12 +45,13 @@ export const ProductFromExternalSchema = ExternalProductSchema.transform((produc
   code: product.code,
   category: null,
   name: product.name,
-  measureUnit: "Pairs"
+  measureUnit: "Pairs",
+  isActive: true
 }));
 
 export const ProductsFromExternalSchema = ExternalProductSchema.array();
 
-export const InsertProductSchema = ProductSchema.omit({ id: true, isActive: true });
+export const InsertProductSchema = ProductSchema.omit({ id: true });
 
 export const ProductsFromDatabase = ProductFromDatabase.array()
 export const DatabaseFromProducts = DatabaseFromProduct.array()
