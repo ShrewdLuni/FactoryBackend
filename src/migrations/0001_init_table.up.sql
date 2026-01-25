@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS users (
   last_name TEXT NOT NULL, 
   patronymic TEXT DEFAULT NULL, 
   full_name TEXT GENERATED ALWAYS AS (
-    first_name || ' ' || last_name || 
+    last_name || ' ' || first_name || 
       CASE WHEN patronymic IS NULL THEN '' ELSE ' ' || patronymic END
   ) STORED, 
   date_of_birth DATE DEFAULT NULL, 
@@ -50,7 +50,6 @@ CREATE TABLE IF NOT EXISTS batches (
   id SERIAL PRIMARY KEY, 
   name TEXT, 
   product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE, 
-  assigned_master_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   size INTEGER NOT NULL DEFAULT 100, 
   progress_status batch_progress NOT NULL DEFAULT 'Inactive', 
   planned_for date NOT NULL DEFAULT now(),
@@ -70,6 +69,17 @@ CREATE TABLE IF NOT EXISTS workstations (
   name TEXT,
   qr_code INTEGER NOT NULL REFERENCES qr_codes(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS plans (
+  id SERIAL PRIMARY KEY,
+  workstation_id INTEGER NOT NULL REFERENCES workstations(id) ON DELETE CASCADE,
+  worker_one_id INTEGER REFERENCES users(id) ON DELETE CASCADE DEFAULT NULL,
+  worker_two_id INTEGER REFERENCES users(id) ON DELETE CASCADE DEFAULT NULL,
+  worker_three_id INTEGER REFERENCES users(id) ON DELETE CASCADE DEFAULT NULL,
+  worker_four_id INTEGER REFERENCES users(id) ON DELETE CASCADE DEFAULT NULL,
+  worker_five_id INTEGER REFERENCES users(id) ON DELETE CASCADE DEFAULT NULL,
+  batch_id INTEGER REFERENCES batches(id) ON DELETE CASCADE DEFAULT NULL,
+)
 
 -- Functions
 CREATE OR REPLACE FUNCTION set_batch_name() 
