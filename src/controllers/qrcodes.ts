@@ -2,7 +2,7 @@ import express from "express"
 import { InitializeQRCodeSchema, QRCodeFromDatabase, QRCodesFromDatabase } from "schemas/qrcode"
 import { createQRCodes, getQRCodes, activateQRCode, getQRCodeById } from "services/qrCodes"
 import QRCode from 'qrcode';
-import { BASE_URL } from "config";
+import { BASE_URL, CLIENT_URL } from "config";
 
 export const getQRCodesController = async (req: express.Request, res: express.Response) => {
   try {
@@ -118,6 +118,8 @@ export const scanQRCodeController = async (req: express.Request, res: express.Re
     if (qrCode.resource) {
       return res.redirect(qrCode.resource);
     }
+
+    return res.redirect(`${CLIENT_URL}/qrcodes/${qrCode.id}`)
     
     return res.status(200).send(`QR Code "${qrCode.name}" - No resource linked yet`);
   } catch (error) {

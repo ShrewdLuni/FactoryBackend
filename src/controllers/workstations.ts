@@ -1,3 +1,4 @@
+import { CLIENT_URL } from "config"
 import express from "express"
 import { InsertWorkstationSchema, WokrstationFromDatabase, WorkstationsFromDatabase } from "schemas/workstations"
 import { activateQRCode } from "services/qrCodes"
@@ -33,7 +34,7 @@ export const createWorkstationController = async (req: express.Request, res: exp
     const result = await createWorkstation(data); 
     const workstation = WokrstationFromDatabase.parse(result); 
     if (data.qr_code)
-      await activateQRCode(data.qr_code, "workstation")
+      await activateQRCode(data.qr_code, `${CLIENT_URL}/workstations/${workstation.id}`)
     return res.status(200).json(workstation);
   } catch (error) {
     console.log(error);
