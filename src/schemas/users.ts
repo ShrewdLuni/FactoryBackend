@@ -45,6 +45,11 @@ export const DatabaseUserSchema = z.object({
   role: roleEnum.optional().nullable(),
 });
 
+export const DatabaseUserWithAuth = DatabaseUserSchema.extend({
+  hash: z.string(),
+  salt: z.string()
+})
+
 const emptyToNull = z
   .string()
   .transform((val) => (val.trim() === "" ? null : val));
@@ -122,10 +127,20 @@ export const DatabaseFromUserSchema = UserSchema.transform((user) => ({
   role: user.role,
 }));
 
+export const UserWithAuthFromDatabase = DatabaseUserWithAuth.transform((db) => ({
+  ...UserFromDatabase.parse(db),
+  auth: {
+    hash: db.hash,
+    salt: db.salt
+  }
+}))
+
 export const InsertUserSchema = UserSchema.omit({ id: true, fullName: true });
 
 export type User = z.infer<typeof UserSchema>;
+export type UserWithAuth = z.infer<typeof UserWithAuthFromDatabase>
 export type DatabaseUser = z.infer<typeof DatabaseUserSchema>;
+export type DatabaseUserWithAuth = z.infer<typeof DatabaseUserWithAuth>
 
 export const UsersFromDatabase = UserFromDatabase.array();
 export const DatabaseFromUsers = DatabaseFromUserSchema.array();

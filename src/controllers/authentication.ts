@@ -9,7 +9,7 @@ import {
   getUserById,
 } from "services/users";
 import { random, authentication } from "utils/authentication";
-import { LoginSchema, RegisterSchema, UserFromDatabase} from "schemas/users";
+import { DatabaseUserWithAuth, LoginSchema, RegisterSchema, UserFromDatabase, type DatabaseUser} from "schemas/users";
 import type { InsertAuthentication } from "schemas/authentication";
 import jwt from "jsonwebtoken";
 
@@ -17,7 +17,7 @@ export const register = async (req: express.Request, res: express.Response) => {
   try {
     const { user, password } = RegisterSchema.parse(req.body);
 
-    let existingUser;
+    let existingUser: DatabaseUser;
 
     if (user.code) {
       existingUser = await getUserByCode(user.code);
@@ -46,8 +46,6 @@ export const register = async (req: express.Request, res: express.Response) => {
 
     const addedAuth = await createAuthentication(authObject);
 
-    console.log(addedUser, addedAuth);
-
     const result = UserFromDatabase.parse(addedUser)
 
     return res.status(200).json(result).end();
@@ -59,9 +57,7 @@ export const register = async (req: express.Request, res: express.Response) => {
 
 export const login = async (req: express.Request, res: express.Response) => {
   try {
-    console.log(req.body);
     const { user, password } = LoginSchema.parse(req.body);
-    console.log(user, password);
 
     if (!user.code && !user.username) {
       return res
@@ -69,7 +65,7 @@ export const login = async (req: express.Request, res: express.Response) => {
         .json({ message: "You must provide code or username" });
     }
 
-    let existingUser;
+    let existingUser: DatabaseUserWithAuth; 
 
     if (user.code) {
       existingUser = await getUserWithAuthByCode(user.code);
@@ -86,12 +82,6 @@ export const login = async (req: express.Request, res: express.Response) => {
     if (expectedHash != existingUser.hash) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
-
-    // const salt = random()
-    // const sessionToken = authentication(salt, String(existingUser.id))
-    // existingUser.sessionToken = sessionToken
-    // await updateAuthentication(existingUser.id, {hash: existingUser.hash, salt: existingUser.salt, sessionToken: sessionToken})
-    // res.cookie('shrewd-auth', existingUser.sessionToken)
 
     const token = jwt.sign(
       { userId: existingUser.id },
@@ -114,7 +104,6 @@ export const logout = async (req: express.Request, res: express.Response) => {
 
 export const whoami = async (req: express.Request, res: express.Response) => {
   try {
-    console.log("whoami called");
     if (!req.userId) return res.sendStatus(401);
 
     const user = await getUserById(req.userId!);

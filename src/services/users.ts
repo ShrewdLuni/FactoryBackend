@@ -1,7 +1,6 @@
 import { query } from "db"
 import { buildSetClause, buildWhereClause } from "utils/models/clauseBuilders"
-import type { InsertUser, DatabaseUser, User } from "schemas/users"
-import type { Authentication } from "schemas/authentication"
+import type { InsertUser, DatabaseUser, User, DatabaseUserWithAuth } from "schemas/users"
 
 export const createUser = async (data: InsertUser): Promise<DatabaseUser> => {
   const result = await query(`
@@ -94,13 +93,13 @@ export const updateUserById = async (id: number, data: InsertUser): Promise<Data
   return result.rows[0];
 }
 
-export const getUserWithAuthByCode = async (code: string): Promise<DatabaseUser & Authentication> => {
-  const result = await query((`SELECT * FROM users u JOIN authentication a on a.employee_id = u.id WHERE u.code = $1 LIMIT 1`), [code])
+export const getUserWithAuthByCode = async (code: string): Promise<DatabaseUserWithAuth> => {
+  const result = await query((`SELECT * FROM users u JOIN authentication a on a.user_id = u.id WHERE u.code = $1 LIMIT 1`), [code])
   return result.rows[0];
 }
 
-export const getUserWithAuthByUsername = async (username: string): Promise<DatabaseUser & Authentication> => {
-  const result = await query(`SELECT u.*, a.hash, a.salt FROM users u JOIN authentication a on a.employee_id = u.id WHERE u.username = $1 LIMIT 1`, [username])
+export const getUserWithAuthByUsername = async (username: string): Promise<DatabaseUserWithAuth> => {
+  const result = await query(`SELECT u.*, a.hash, a.salt FROM users u JOIN authentication a on a.user_id = u.id WHERE u.username = $1 LIMIT 1`, [username])
   return result.rows[0];
 }
 

@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS users (
 ); 
 
 CREATE TABLE IF NOT EXISTS authentication (
-  employee_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE, 
+  user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE, 
   hash TEXT NOT NULL, 
   salt TEXT NOT NULL
 ); 
@@ -62,14 +62,14 @@ CREATE TABLE IF NOT EXISTS products (
 CREATE TABLE IF NOT EXISTS batches (
   id SERIAL PRIMARY KEY, 
   name TEXT, 
-  product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE, 
   size INTEGER NOT NULL DEFAULT 100, 
-  knitting_worker_id INTEGER REFERENCES users(id) ON DELETE CASCADE DEFAULT NULL,
-  sewing_worker_id INTEGER REFERENCES users(id) ON DELETE CASCADE DEFAULT NULL,
-  molding_worker_id INTEGER REFERENCES users(id) ON DELETE CASCADE DEFAULT NULL,
-  labeling_worker_id INTEGER REFERENCES users(id) ON DELETE CASCADE DEFAULT NULL,
-  packaging_worker_id INTEGER REFERENCES users(id) ON DELETE CASCADE DEFAULT NULL,
-  workstation_id INTEGER REFERENCES workstations(id) ON DELETE CASCADE DEFAULT NULL,
+  product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE, 
+  knitting_worker_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  sewing_worker_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  molding_worker_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  labeling_worker_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  packaging_worker_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  workstation_id INTEGER NOT NULL REFERENCES workstations(id) ON DELETE CASCADE,
   progress_status batch_progress NOT NULL DEFAULT 'Inactive', 
   planned_for date DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(), 
