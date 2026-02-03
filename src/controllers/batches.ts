@@ -1,6 +1,6 @@
 import express from 'express'
 import z from 'zod';
-import { initializeBatchSchema } from "schemas/batches";
+import { InitializeBatchSchema } from "schemas/batches";
 import { getAllBatchesWithProducts, createBatches, scanBatch, getBatch } from "../services/batches"
 
 export const getBatchController = async (req: express.Request, res: express.Response) => {
@@ -58,7 +58,7 @@ export const scanBatchController = async (req: express.Request, res: express.Res
 export const createBatchControler = async (req: express.Request, res: express.Response) => {
   try {
     console.log(req.body)
-    const {batch, amount } = initializeBatchSchema.parse(req.body);
+    const { batch, amount } = InitializeBatchSchema.parse(req.body);
     console.log(batch, amount)
     const data = await createBatches(batch, amount);
     return res.status(200).json(data);
