@@ -1,5 +1,6 @@
 import data from "data/users.json"
-import { type DatabaseUser, type InsertUser, UsersFromExternalSchema  } from "schemas/users";
+import type { DatabaseUser, InsertUser } from "schemas/users";
+import { UsersFromExternalSchema } from "schemas/external/users";
 import { query } from "db";
 
 export const AddUsersToDB = async (): Promise<DatabaseUser[]> => {

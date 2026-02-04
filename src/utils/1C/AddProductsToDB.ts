@@ -1,7 +1,7 @@
 import XLSX from 'xlsx';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
-import { ProductFromExternalSchema, ProductsFromExternalSchema, type ExternalProduct } from 'schemas/products';
+import { type ExternalProduct, ProductsFromExternalSchema } from 'schemas/external/products';
 import { query } from 'db';
 
 export function readProductsFromExcel(): ExternalProduct[] {
