@@ -1,21 +1,22 @@
 import { z } from "zod"
+import { DbId } from "./utils";
 
 export const ProductSchema = z.object({
-  id: z.number().int(),
+  id: DbId, 
   code: z.string(),
   category: z.string().nullish(),
   name: z.string().nullish(),
   isActive: z.boolean().default(true),
-  measureUnit: z.string().optional().nullable().default("Pairs"),
+  measureUnit: z.string().nullish().default("Pairs"),
 });
 
 export const DatabaseProductSchema = z.object({
-  id: z.number().int(),
+  id: DbId,
   code: z.string(),
   category: z.string().nullish(),
   name: z.string().nullish(),
   is_active: z.boolean().default(true),
-  measure_unit: z.string().optional().nullable().default("Pairs"),
+  measure_unit: z.string().nullish().default("Pairs"),
 });
 
 export const ProductFromDatabase = DatabaseProductSchema.transform((db) => ({

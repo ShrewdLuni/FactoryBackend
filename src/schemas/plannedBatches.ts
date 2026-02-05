@@ -1,29 +1,30 @@
 import { z } from "zod";
+import { DbId } from "./utils";
 
 export const PlannedBatchSchema = z.object({
-  id: z.number(),
-  productId: z.number().nullish(),
-  size: z.number().positive().default(100),
+  id: DbId,
+  productId: DbId,
+  size: z.int().positive().default(100),
   masters: z.object({
-    knitting: z.number().positive().nullish(),
-    sewing: z.number().positive().nullish(),
-    molding: z.number().positive().nullish(),
-    labeling: z.number().positive().nullish(),
-    packaging: z.number().positive().nullish(),
+    knitting: DbId.nullish(),
+    sewing: DbId.nullish(),
+    molding: DbId.nullish(),
+    labeling: DbId.nullish(),
+    packaging: DbId.nullish(),
   }),
-  workstationId: z.number().positive().nullish(),
+  workstationId: DbId.nullish(),
 })
 
 export const DatabasePlannedBatchSchema = z.object({
-  id: z.number(),
-  product_id: z.number().nullish(),
-  size: z.number().positive().default(100),
-  knitting_worker_id: z.number().positive().nullish(),
-  sewing_worker_id: z.number().positive().nullish(),
-  molding_worker_id: z.number().positive().nullish(),
-  labeling_worker_id: z.number().positive().nullish(),
-  packaging_worker_id: z.number().positive().nullish(),
-  workstation_id: z.number().positive().nullish(),
+  id: DbId,
+  product_id: DbId.nullish(),
+  size: z.int().positive().default(100),
+  knitting_worker_id: DbId.nullish(),
+  sewing_worker_id: DbId.nullish(),
+  molding_worker_id: DbId.nullish(),
+  labeling_worker_id: DbId.nullish(),
+  packaging_worker_id: DbId.nullish(),
+  workstation_id: DbId.nullish(),
 })
 
 export const InsertPlannedBatchSchema = PlannedBatchSchema.omit({ id: true })

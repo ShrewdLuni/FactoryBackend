@@ -1,15 +1,16 @@
 import { z } from "zod"; 
+import { DbId } from "./utils";
 
 export const WorkstationSchema = z.object({ 
-  id: z.number().int(), 
-  name: z.string().optional().nullable().default(null), 
-  qrCode: z.number().int().optional().nullable().default(null), 
+  id: DbId,
+  name: z.string().nullish().default(null), 
+  qrCode: DbId.nullish().default(null), 
 }); 
 
 export const DatabaseWorkstationSchema = z.object({ 
-  id: z.number().int(), 
-  name: z.string().optional().nullable().default(null), 
-  qr_code: z.number().int().optional().nullable().default(null), 
+  id: DbId,
+  name: z.string().nullish().default(null), 
+  qr_code: DbId.nullish().default(null), 
 }); 
 
 export const WokrstationFromDatabase = DatabaseWorkstationSchema.transform((db) => ({
@@ -24,13 +25,7 @@ export const DatabaseFromWorkstation = WorkstationSchema.transform((workstation)
   qr_code: workstation.qrCode
 }))
 
-export const InsertWorkstationSchema = z.preprocess(
-  (data: any) => ({
-    ...data,
-    qr_code: data.qr_code ?? data.qrCode,
-  }),
-  DatabaseWorkstationSchema.omit({ id: true })
-);
+export const InsertWorkstationSchema = DatabaseWorkstationSchema.omit({ id: true })
 
 export const WorkstationsFromDatabase = WokrstationFromDatabase.array()
 export const DatabaseFromWorkstations = DatabaseFromWorkstation.array()

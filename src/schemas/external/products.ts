@@ -1,9 +1,10 @@
 import { z } from "zod";
 import type { InsertProduct } from "schemas/products";
+import { emptyToNull } from "schemas/utils";
 
 export const ExternalProductSchema = z.object({
   code: z.string(),
-  name: z.string().transform((val) => (val.trim() === "" ? null : val)),
+  name: emptyToNull,
 });
 
 export const ProductFromExternalSchema = ExternalProductSchema.transform((product): InsertProduct => ({

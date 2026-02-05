@@ -1,15 +1,6 @@
 import { z } from "zod";
 import type { InsertUser } from "schemas/users";
-
-const emptyToNull = z
-  .string()
-  .transform((val) => (val.trim() === "" ? null : val));
-
-const dateOrNull = z.string().transform((val) => {
-  if (!val || val.trim() === "") return null;
-  const d = new Date(val);
-  return isNaN(d.getTime()) ? null : d;
-});
+import { emptyToNull, dateOrNull } from "schemas/utils";
 
 export const ExternalUserSchema = z.object({
   GUID: emptyToNull,
@@ -17,9 +8,9 @@ export const ExternalUserSchema = z.object({
   Name: emptyToNull,
   BDate: dateOrNull,
   CodeDRFO: emptyToNull,
-  LName: emptyToNull.optional().nullable(),
-  FName: emptyToNull.optional().nullable(),
-  SName: emptyToNull.optional().nullable(),
+  LName: emptyToNull.nullish(),
+  FName: emptyToNull.nullish(),
+  SName: emptyToNull.nullish(),
 });
 
 export const UserFromExternalSchema = ExternalUserSchema.transform((u): InsertUser => ({

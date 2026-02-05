@@ -1,17 +1,18 @@
 import { z } from "zod"
+import { DbId } from "./utils";
 
 export const QRCodeSchema = z.object({
-  id: z.number().int(),
+  id: DbId,
   isTaken: z.boolean().default(false),
   name: z.string().optional(),
-  resource: z.string().optional().nullable(),
+  resource: z.string().nullish(),
 });
 
 export const DatabaseQRCodeSchema = z.object({
-  id: z.number().int(),
+  id: DbId,
   is_taken: z.boolean().default(false),
-  name: z.string().optional(),
-  resource: z.string().optional().nullable(),
+  name: z.string().nullish(),
+  resource: z.string().nullish(),
 })
 
 export const QRCodeFromDatabase = DatabaseQRCodeSchema.transform((db) => ({
@@ -31,7 +32,7 @@ export const DatabaseFromQRCode = QRCodeFromDatabase.transform((qr) => ({
 export const InsertQRCodeSchema = QRCodeSchema.omit({ id: true, isTaken: true })
 
 export const InitializeQRCodeSchema = InsertQRCodeSchema 
-  .extend({amount: z.number().int(),})
+  .extend({amount: z.int().positive(),})
   .transform(({ amount, ...qrcode }) => ({ qrcode, amount }));
 
 export const QRCodesFromDatabase = QRCodeFromDatabase.array()

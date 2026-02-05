@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { DbId } from "./utils";
 
 const genderEnum = z.enum(["Male", "Female", "Other"]);
 const roleEnum = z.enum([
@@ -10,39 +11,39 @@ const roleEnum = z.enum([
 ]);
 
 export const UserSchema = z.object({
-  id: z.number(),
-  guid: z.string().optional().nullable(),
-  code: z.string().optional().nullable(),
-  taxCode: z.string().optional().nullable(),
-  username: z.string().optional().nullable(),
+  id: DbId,
+  guid: z.string().nullish(),
+  code: z.string().nullish(),
+  taxCode: z.string().nullish(),
+  username: z.string().nullish(),
   firstName: z.string(),
   lastName: z.string(),
-  patronymic: z.string().optional().nullable(),
+  patronymic: z.string().nullish(),
   fullName: z.string(),
-  dateOfBirth: z.coerce.date().optional().nullable(),
-  email: z.email().optional().nullable(),
-  phone: z.string().optional().nullable(),
-  gender: genderEnum.optional().nullable().default("Other"),
-  department: z.string().optional().nullable(),
-  role: roleEnum.optional().nullable(),
+  dateOfBirth: z.coerce.date().nullish(),
+  email: z.email().nullish(),
+  phone: z.string().nullish(),
+  gender: genderEnum.nullish().default("Other"),
+  department: z.string().nullish(),
+  role: roleEnum.nullish(),
 });
 
 export const DatabaseUserSchema = z.object({
-  id: z.number(),
-  guid: z.string().optional().nullable(),
-  code: z.string().optional().nullable(),
-  code_drfo: z.string().optional().nullable(),
-  username: z.string().optional().nullable(),
+  id: DbId,
+  guid: z.string().nullish(),
+  code: z.string().nullish(),
+  code_drfo: z.string().nullish(),
+  username: z.string().nullish(),
   first_name: z.string(),
   last_name: z.string(),
-  patronymic: z.string().optional().nullable(),
+  patronymic: z.string().nullish(),
   full_name: z.string(),
-  date_of_birth: z.coerce.date().optional().nullable(),
-  email: z.email().optional().nullable(),
-  phone: z.string().optional().nullable(),
-  gender: genderEnum.optional().nullable().default("Other"),
-  department: z.string().optional().nullable(),
-  role: roleEnum.optional().nullable(),
+  date_of_birth: z.coerce.date().nullish(),
+  email: z.email().nullish(),
+  phone: z.string().nullish(),
+  gender: genderEnum.nullish().default("Other"),
+  department: z.string().nullish(),
+  role: roleEnum.nullish(),
 });
 
 export const DatabaseUserWithAuth = DatabaseUserSchema.extend({

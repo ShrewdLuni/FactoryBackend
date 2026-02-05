@@ -1,4 +1,5 @@
 import { z } from "zod"; 
+import { DbId } from "./utils";
 
 const progressEnum = z.enum([
   'Inactive', 
@@ -11,18 +12,18 @@ const progressEnum = z.enum([
 ])
 
 export const BatchSchema = z.object({ 
-  id: z.number(),
+  id: DbId,
   name: z.string().optional(), 
-  size: z.number().positive().default(100),
-  productId: z.number(),
+  size: z.int().positive().default(100),
+  productId: DbId,
   masters: z.object({
-    knitting: z.number().positive(),
-    sewing: z.number().positive(),
-    molding: z.number().positive(),
-    labeling: z.number().positive(),
-    packaging: z.number().positive(),
+    knitting: DbId,
+    sewing: DbId,
+    molding: DbId,
+    labeling: DbId,
+    packaging: DbId,
   }),
-  workstationId: z.number().positive(),
+  workstationId: DbId,
   progressStatus: progressEnum,
   plannedFor: z.coerce.date().default(() => new Date()),
   updatedAt: z.date().default(() => new Date()), 
@@ -30,17 +31,17 @@ export const BatchSchema = z.object({
 }); 
 
 export const DatabaseBatchSchema = z.object({
-  id: z.number().int(),
+  id: DbId,
   name: z.string().nullish(),
-  product_id: z.number(),
-  size: z.number().default(100),
-  knitting_worker_id: z.number(),
-  sewing_worker_id: z.number(),
-  molding_worker_id: z.number(),
-  labeling_worker_id: z.number(),
-  packaging_worker_id: z.number(),
-  workstation_id: z.number(),
-  progress_status: z.string(),
+  product_id: DbId,
+  size: z.int().default(100),
+  knitting_worker_id: DbId,
+  sewing_worker_id: DbId,
+  molding_worker_id: DbId,
+  labeling_worker_id: DbId,
+  packaging_worker_id: DbId,
+  workstation_id: DbId,
+  progress_status: progressEnum,
   planned_for: z.coerce.date().default(() => new Date()),
   updated_at: z.coerce.date().default(() => new Date()),
   created_at: z.coerce.date().default(() => new Date()),
@@ -51,7 +52,7 @@ export const DatabaseBatchWithProduct = DatabaseBatchSchema.extend({
   category: z.string().nullish(),
   name: z.string().nullish(),
   is_active: z.boolean().default(true),
-  measure_unit: z.string().optional().nullable().default("Pairs"),
+  measure_unit: z.string().nullish().default("Pairs"),
 })
 
 export const BatchFromDatabase = DatabaseBatchSchema.transform((db) => ({
@@ -101,7 +102,7 @@ export const InsertBatchSchema = BatchSchema.omit({
 }); 
 
 export const InitializeBatchSchema = InsertBatchSchema
-  .extend({amount: z.number().int(),})
+  .extend({amount: z.int(),})
   .transform(({ amount, ...batch }) => ({ batch, amount }));
 
 export type Batch = z.infer<typeof BatchSchema>; 

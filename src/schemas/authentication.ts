@@ -1,13 +1,14 @@
 import { z } from "zod"
+import { DbId } from "./utils"
 
 const DatabaseAuthenticationSchema = z.object({
-  user_id: z.number().positive(),
+  user_id: DbId,
   hash: z.string(),
   salt: z.string(),
 })
 
 const AuthenticationSchema = z.object({
-  userId: z.number().positive(),
+  userId: DbId,
   hash: z.string(),
   salt: z.string(),
 })
