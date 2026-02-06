@@ -1,41 +1,43 @@
 import { z } from "zod"
 import { DbId } from "./utils";
 
-export const ProductSchema = z.object({
+const shared = {
   id: DbId, 
   code: z.string(),
   category: z.string().nullish(),
   name: z.string().nullish(),
+}
+
+const mapped = {
   isActive: z.boolean().default(true),
   measureUnit: z.string().nullish().default("Pairs"),
-});
+}
+
+export const ProductSchema = z.object({...shared, ...mapped});
 
 export const DatabaseProductSchema = z.object({
-  id: DbId,
-  code: z.string(),
-  category: z.string().nullish(),
-  name: z.string().nullish(),
-  is_active: z.boolean().default(true),
-  measure_unit: z.string().nullish().default("Pairs"),
+  ...shared,
+  is_active: mapped.isActive,
+  measure_unit: mapped.measureUnit,
 });
 
-export const ProductFromDatabase = DatabaseProductSchema.transform((db) => ({
-  id: db.id,
-  code: db.code,
-  category: db.category,
-  name: db.name,
-  isActive: db.is_active,
-  measureUnit: db.measure_unit,
-}))
+export const ProductFromDatabase = DatabaseProductSchema.transform((db) => {
+  const { is_active, measure_unit, ...rest} = db;
+  return {
+    ...rest,
+    isActive: db.is_active,
+    measureUnit: db.measure_unit,
+  }
+})
 
-export const DatabaseFromProduct = ProductSchema.transform((product) => ({
-  id: product.id,
-  code: product.code,
-  category: product.category,
-  name: product.name,
-  is_active: product.isActive,
-  measure_unit: product.measureUnit,
-}))
+export const DatabaseFromProduct = ProductSchema.transform((product) => {
+  const { isActive, measureUnit, ...rest} = product;
+  return {
+    ...rest,
+    is_active: product.isActive,
+    measure_unit: product.measureUnit,
+  }
+})
 
 export const InsertProductSchema = ProductSchema.omit({ id: true });
 

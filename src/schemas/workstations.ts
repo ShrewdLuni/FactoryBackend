@@ -1,29 +1,37 @@
 import { z } from "zod"; 
 import { DbId } from "./utils";
 
-export const WorkstationSchema = z.object({ 
+const shared = { 
   id: DbId,
   name: z.string().nullish().default(null), 
+}
+
+const mapped = {
   qrCode: DbId.nullish().default(null), 
-}); 
+}
+
+export const WorkstationSchema = z.object({...shared, ...mapped}); 
 
 export const DatabaseWorkstationSchema = z.object({ 
-  id: DbId,
-  name: z.string().nullish().default(null), 
-  qr_code: DbId.nullish().default(null), 
+  ...shared,
+  qr_code: mapped.qrCode,
 }); 
 
-export const WokrstationFromDatabase = DatabaseWorkstationSchema.transform((db) => ({
-  id: db.id,
-  name: db.name,
-  qrCode: db.qr_code,
-}));
+export const WokrstationFromDatabase = DatabaseWorkstationSchema.transform((db) => {
+  const { qr_code, ...rest } = db;
+  return { 
+    ...rest,
+    qrCode: qr_code, 
+  }
+});
 
-export const DatabaseFromWorkstation = WorkstationSchema.transform((workstation) => ({
-  id: workstation.id,
-  name: workstation.name,
-  qr_code: workstation.qrCode
-}))
+export const DatabaseFromWorkstation = WorkstationSchema.transform((workstation) => {
+  const { qrCode, ...rest } = workstation;
+  return { 
+    ...rest,
+    qr_code: qrCode 
+  }
+})
 
 export const InsertWorkstationSchema = DatabaseWorkstationSchema.omit({ id: true })
 

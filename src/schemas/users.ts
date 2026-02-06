@@ -10,82 +10,67 @@ const roleEnum = z.enum([
   "Observer",
 ]);
 
-export const UserSchema = z.object({
+const shared = {
   id: DbId,
   guid: z.string().nullish(),
   code: z.string().nullish(),
-  taxCode: z.string().nullish(),
   username: z.string().nullish(),
+  email: z.email().nullish(),
+  phone: z.string().nullish(),
+  gender: genderEnum.nullish().default("Other"),
+  department: z.string().nullish(),
+  role: roleEnum.nullish(),
+}
+
+const mapped = {
+  taxCode: z.string().nullish(),
   firstName: z.string(),
   lastName: z.string(),
   patronymic: z.string().nullish(),
   fullName: z.string(),
   dateOfBirth: z.coerce.date().nullish(),
-  email: z.email().nullish(),
-  phone: z.string().nullish(),
-  gender: genderEnum.nullish().default("Other"),
-  department: z.string().nullish(),
-  role: roleEnum.nullish(),
-});
+}
+
+export const UserSchema = z.object({...shared, ...mapped});
 
 export const DatabaseUserSchema = z.object({
-  id: DbId,
-  guid: z.string().nullish(),
-  code: z.string().nullish(),
-  code_drfo: z.string().nullish(),
-  username: z.string().nullish(),
-  first_name: z.string(),
-  last_name: z.string(),
-  patronymic: z.string().nullish(),
-  full_name: z.string(),
-  date_of_birth: z.coerce.date().nullish(),
-  email: z.email().nullish(),
-  phone: z.string().nullish(),
-  gender: genderEnum.nullish().default("Other"),
-  department: z.string().nullish(),
-  role: roleEnum.nullish(),
-});
+  ...shared,
+  code_drfo: mapped.taxCode,
+  first_name: mapped.firstName,
+  last_name: mapped.lastName,
+  full_name: mapped.fullName,
+  date_of_birth: mapped.dateOfBirth,
+})
 
 export const DatabaseUserWithAuth = DatabaseUserSchema.extend({
   hash: z.string(),
   salt: z.string()
 })
 
-export const UserFromDatabase = DatabaseUserSchema.transform((db) => ({
-  id: db.id,
-  guid: db.guid,
-  code: db.code,
-  taxCode: db.code_drfo,
-  username: db.username,
-  firstName: db.first_name,
-  lastName: db.last_name,
-  patronymic: db.patronymic,
-  fullName: db.full_name,
-  dateOfBirth: db.date_of_birth,
-  email: db.email,
-  phone: db.phone,
-  gender: db.gender,
-  department: db.department,
-  role: db.role,
-}));
+export const UserFromDatabase = DatabaseUserSchema.transform((db) => {
+  const { code_drfo, first_name, last_name, full_name, date_of_birth, ...rest} = db;
+  return {
+    ...rest,
+    taxCode: code_drfo,
+    firstName: first_name,
+    lastName: last_name,
+    fullName: full_name,
+    dateOfBirth: date_of_birth,
+  }
+});
 
-export const DatabaseFromUserSchema = UserSchema.transform((user) => ({
-  id: user.id,
-  guid: user.guid,
-  code: user.code,
-  code_drfo: user.taxCode,
-  username: user.username,
-  first_name: user.firstName,
-  last_name: user.lastName,
-  patronymic: user.patronymic,
-  full_name: user.fullName,
-  date_of_birth: user.dateOfBirth,
-  email: user.email,
-  phone: user.phone,
-  gender: user.gender,
-  department: user.department,
-  role: user.role,
-}));
+export const DatabaseFromUserSchema = UserSchema.transform((user) => {
+  const { taxCode, firstName, lastName, fullName, dateOfBirth, ...rest} = user;
+  return {
+    ...rest,
+    code_drfo: user.taxCode,
+    first_name: user.firstName,
+    last_name: user.lastName,
+    patronymic: user.patronymic,
+    full_name: user.fullName,
+    date_of_birth: user.dateOfBirth,
+  }
+});
 
 export const UserWithAuthFromDatabase = DatabaseUserWithAuth.transform((db) => ({
   ...UserFromDatabase.parse(db),
