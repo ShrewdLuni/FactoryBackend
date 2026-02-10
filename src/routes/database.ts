@@ -3,6 +3,7 @@ import { migrateDatabase, testDatabase } from "controllers/database";
 import logger from "logger";
 import { AddUsersToDB } from "utils/1C/AddUsersToDB";
 import { AddProductsToDB } from "utils/1C/AddProductsToDB";
+import { RegisterExternalUsers } from "utils/1C/RegisterUsers";
 
 const router = express.Router()
 
@@ -10,8 +11,8 @@ router.get("/test", testDatabase)
 router.get("/migrate", migrateDatabase)
 router.get("/add-users", async (req: express.Request, res: express.Response) => {
   try {
-    await AddUsersToDB()
-    logger.info("1C users added");
+    await RegisterExternalUsers()
+    logger.info("1C users added/registred");
     res.sendStatus(200);
   }
   catch {
