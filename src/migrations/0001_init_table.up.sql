@@ -61,33 +61,21 @@ CREATE TABLE IF NOT EXISTS products (
 
 CREATE TABLE IF NOT EXISTS batches (
   id SERIAL PRIMARY KEY, 
-  name TEXT, 
+  name TEXT DEFAULT NULL, 
   size INTEGER NOT NULL DEFAULT 100, 
-  product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE, 
-  knitting_worker_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  sewing_worker_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  molding_worker_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  labeling_worker_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  packaging_worker_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  workstation_id INTEGER NOT NULL REFERENCES workstations(id) ON DELETE CASCADE,
+  product_id INTEGER REFERENCES products(id) ON DELETE CASCADE, 
+  knitting_worker_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  sewing_worker_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  molding_worker_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  labeling_worker_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  packaging_worker_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  workstation_id INTEGER REFERENCES workstations(id) ON DELETE CASCADE,
   progress_status batch_progress NOT NULL DEFAULT 'Inactive', 
+  is_planned BOOLEAN NOT NULL DEFAULT True,
   planned_for date DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(), 
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 ); 
-
-CREATE TABLE IF NOT EXISTS planned_batches (
-  id SERIAL PRIMARY KEY, 
-  product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE, 
-  size INTEGER NOT NULL DEFAULT 100, 
-  knitting_worker_id INTEGER REFERENCES users(id) ON DELETE CASCADE DEFAULT NULL,
-  sewing_worker_id INTEGER REFERENCES users(id) ON DELETE CASCADE DEFAULT NULL,
-  molding_worker_id INTEGER REFERENCES users(id) ON DELETE CASCADE DEFAULT NULL,
-  labeling_worker_id INTEGER REFERENCES users(id) ON DELETE CASCADE DEFAULT NULL,
-  packaging_worker_id INTEGER REFERENCES users(id) ON DELETE CASCADE DEFAULT NULL,
-  workstation_id INTEGER REFERENCES workstations(id) ON DELETE CASCADE DEFAULT NULL
-); 
-
 
 -- Functions
 CREATE OR REPLACE FUNCTION set_batch_name() 
@@ -120,17 +108,7 @@ FOR EACH ROW
 EXECUTE FUNCTION update_updated_at();
 
 CREATE OR REPLACE FUNCTION advance_batch_progress(batch_id INTEGER)
-RETURNS TABLE (
-  id INTEGER,
-  name TEXT,
-  product_id INTEGER,
-  assigned_master_id INTEGER,
-  size INTEGER,
-  progress_status batch_progress,
-  planned_for DATE,
-  updated_at TIMESTAMPTZ,
-  created_at TIMESTAMPTZ
-) AS $$
+RETURNS SETOF batches AS $$
 DECLARE
   current_status batch_progress;
   new_status batch_progress;
@@ -138,21 +116,21 @@ BEGIN
   SELECT b.progress_status INTO current_status
   FROM batches b
   WHERE b.id = batch_id;
-  
+
   IF current_status IS NULL THEN
     RAISE EXCEPTION 'Batch with id % not found', batch_id;
   END IF;
-  
+
   new_status := CASE current_status
-    WHEN 'Inactive' THEN 'Knitting Workshop'
-    WHEN 'Knitting Workshop' THEN 'Sewing Workshop'
-    WHEN 'Sewing Workshop' THEN 'Molding Workshop'
-    WHEN 'Molding Workshop' THEN 'Labeling Workshop'
-    WHEN 'Labeling Workshop' THEN 'Packaging Workshop'
+    WHEN 'Inactive'           THEN 'Knitting Workshop'
+    WHEN 'Knitting Workshop'  THEN 'Sewing Workshop'
+    WHEN 'Sewing Workshop'    THEN 'Molding Workshop'
+    WHEN 'Molding Workshop'   THEN 'Labeling Workshop'
+    WHEN 'Labeling Workshop'  THEN 'Packaging Workshop'
     WHEN 'Packaging Workshop' THEN 'Completed'
     ELSE current_status
   END;
-  
+
   RETURN QUERY
   UPDATE batches
   SET progress_status = new_status
