@@ -33,7 +33,7 @@ export const DatabaseFromWorkstation = WorkstationSchema.transform((workstation)
   }
 })
 
-export const InsertWorkstationSchema = DatabaseWorkstationSchema.omit({ id: true })
+export const InsertWorkstationSchema = WorkstationSchema.omit({ id: true })
 
 export const WorkstationsFromDatabase = WokrstationFromDatabase.array()
 export const DatabaseFromWorkstations = DatabaseFromWorkstation.array()

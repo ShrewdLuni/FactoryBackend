@@ -16,6 +16,7 @@ export const getWorkstationController = async (req: express.Request, res: expres
       return res.status(400).json({message: "Invalid data was provided"})
     }
     const id = parseInt(req.params.id);
+
     if (isNaN(id)) {
       return res.status(400).json({message: "Invalid data was provided"})
     }
@@ -30,11 +31,12 @@ export const getWorkstationController = async (req: express.Request, res: expres
 
 export const createWorkstationController = async (req: express.Request, res: express.Response) => {
   try {
+    console.log(req.body)
     const data = InsertWorkstationSchema.parse(req.body); 
     const result = await createWorkstation(data); 
     const workstation = WokrstationFromDatabase.parse(result); 
-    if (data.qr_code)
-      await activateQRCode(data.qr_code, `${CLIENT_URL}/workstations/${workstation.id}`)
+    if (data.qrCode)
+      await activateQRCode(data.qrCode, `${CLIENT_URL}/workstations/${workstation.id}`)
     return res.status(200).json(workstation);
   } catch (error) {
     console.log(error);
