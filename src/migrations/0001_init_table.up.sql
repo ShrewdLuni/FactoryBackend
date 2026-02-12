@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS qr_codes (
 
 CREATE TABLE IF NOT EXISTS workstations (
   id SERIAL PRIMARY KEY,
-  name TEXT,
+  name TEXT NOT NULL,
   qr_code INTEGER NOT NULL REFERENCES qr_codes(id) ON DELETE CASCADE
 );
 

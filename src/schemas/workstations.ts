@@ -3,11 +3,11 @@ import { DbId } from "./utils";
 
 const shared = { 
   id: DbId,
-  name: z.string().nullish().default(null), 
+  name: z.string(),
 }
 
 const mapped = {
-  qrCode: DbId.nullish().default(null), 
+  qrCode: DbId,
 }
 
 export const WorkstationSchema = z.object({...shared, ...mapped}); 

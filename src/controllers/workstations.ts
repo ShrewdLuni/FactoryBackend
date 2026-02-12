@@ -1,83 +1,47 @@
-import { CLIENT_URL } from "config"
 import express from "express"
+import { CLIENT_URL } from "config"
 import { InsertWorkstationSchema, WokrstationFromDatabase, WorkstationsFromDatabase } from "schemas/workstations"
 import { activateQRCode } from "services/qrCodes"
 import { createWorkstation, deleteWorkstation, getAllWorkstations, getWorkstation, updateWorkstation } from "services/workstations"
+import { paramsSchema } from "schemas/utils"
+import { asyncHandler, HttpError } from "utils/errorHandler"
 
-export const getAllWorkstationsController = async (req: express.Request, res: express.Response) => {
+export const getAllWorkstationsController = asyncHandler(async (req: express.Request, res: express.Response) => {
   const databaseResult = await getAllWorkstations()
   const workstations = WorkstationsFromDatabase.parse(databaseResult)
-  return res.status(200).json(workstations);
-}
+  res.status(200).json(workstations);
+})
 
-export const getWorkstationController = async (req: express.Request, res: express.Response) => {
-  try {
-    if (req.params.id == undefined) {
-      return res.status(400).json({message: "Invalid data was provided"})
-    }
-    const id = parseInt(req.params.id);
+export const getWorkstationController = asyncHandler(async (req: express.Request, res: express.Response) => {
+  const { id } = paramsSchema.parse(req.params)
+  const result = await getWorkstation(id)
+  if (!result) throw new HttpError(404, `Workstation with ID ${id} not found`);
+  const workstation = WokrstationFromDatabase.parse(result); 
+  res.status(200).json(workstation);
+})
 
-    if (isNaN(id)) {
-      return res.status(400).json({message: "Invalid data was provided"})
-    }
-    const result = await getWorkstation(id)
-    const workstation = WokrstationFromDatabase.parse(result); 
-    return res.status(200).json(workstation);
-  } catch (error) {
-    console.log(error);
-    return res.status(500);
-  }
-}
+export const createWorkstationController = asyncHandler(async (req: express.Request, res: express.Response) => {
+  const data = InsertWorkstationSchema.parse(req.body); 
+  const result = await createWorkstation(data); 
+  const workstation = WokrstationFromDatabase.parse(result); 
+  const qrCode = await activateQRCode(data.qrCode, `${CLIENT_URL}/workstations/${workstation.id}`)
+  if (!qrCode) throw new HttpError(404, `QR-Code with ID ${data.qrCode} not found`);
+  res.status(201).json(workstation);
+})
 
-export const createWorkstationController = async (req: express.Request, res: express.Response) => {
-  try {
-    console.log(req.body)
-    const data = InsertWorkstationSchema.parse(req.body); 
-    const result = await createWorkstation(data); 
-    const workstation = WokrstationFromDatabase.parse(result); 
-    if (data.qrCode)
-      await activateQRCode(data.qrCode, `${CLIENT_URL}/workstations/${workstation.id}`)
-    return res.status(200).json(workstation);
-  } catch (error) {
-    console.log(error);
-    return res.status(500);
-  }
-}
+export const updateWorkstationController = asyncHandler(async (req: express.Request, res: express.Response) => {
+  const { id } = paramsSchema.parse(req.params)
+  const data = InsertWorkstationSchema.parse(req.body); 
+  const result = await updateWorkstation(id, data)
+  if (!result) throw new HttpError(404, `Workstation with ID ${id} not found`);
+  const workstation = WokrstationFromDatabase.parse(result); 
+  res.status(200).json(workstation);
+})
 
-export const updateWorkstationController = async (req: express.Request, res: express.Response) => {
-  try {
-    if (req.params.id == undefined) {
-      return res.status(400).json({message: "Invalid data was provided"})
-    }
-    const id = parseInt(req.params.id);
-    if (isNaN(id)) {
-      return res.status(400).json({message: "Invalid data was provided"})
-    }
-    const data = InsertWorkstationSchema.parse(req.body); 
-    const result = await updateWorkstation(id, data)
-    const workstation = WokrstationFromDatabase.parse(result); 
-    return res.status(200).json(workstation);
-  } catch (error) {
-    console.log(error);
-    return res.status(500);
-  }
-}
-
-export const deleteWorkstationController = async (req: express.Request, res: express.Response) => {
-  try {
-    if (req.params.id == undefined) {
-      return res.status(400).json({message: "Invalid data was provided"})
-    }
-    const id = parseInt(req.params.id);
-    if (isNaN(id)) {
-      return res.status(400).json({message: "Invalid data was provided"})
-    }
-    const result = await deleteWorkstation(id)
-    const workstation = WokrstationFromDatabase.parse(result); 
-    return res.status(200).json(workstation);
-  } catch (error) {
-    console.log(error);
-    return res.status(500);
-  }
-}
-
+export const deleteWorkstationController = asyncHandler(async (req: express.Request, res: express.Response) => {
+  const { id } = paramsSchema.parse(req.params)
+  const result = await deleteWorkstation(id)
+  if (!result) throw new HttpError(404, `Workstation with ID ${id} not found`);
+  const workstation = WokrstationFromDatabase.parse(result); 
+  res.status(200).json(workstation);
+})
