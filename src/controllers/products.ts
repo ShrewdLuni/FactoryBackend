@@ -1,49 +1,43 @@
-import { createProduct, getProducts, updateProduct } from "services/products";
 import express from "express"
 import { InsertProductSchema, ProductFromDatabase, ProductsFromDatabase } from "schemas/products";
+import { asyncHandler, HttpError } from "utils/errorHandler";
+import { productsService as service } from "services/products";
+import { paramsSchema } from "schemas/utils";
 
-export const createProductController = async (req: express.Request, res: express.Response) => {
-  try {
-    const product = InsertProductSchema.parse(req.body);
+export const getProductsController = asyncHandler(async (req: express.Request, res: express.Response) => {
+  const result = await service.getAll()
+  const products = ProductsFromDatabase.parse(result);
+  res.status(200).json(products);
+})
 
-    if(!product){
-      return res.sendStatus(400);
-    }
+export const getProductController = asyncHandler(async (req: express.Request, res: express.Response) => {
+  const { id } = paramsSchema.parse(req.params)
+  const databaseResult = await service.get(id)
+  if (!databaseResult) throw new HttpError(404, `Product with ID ${id} not found`);
+  const product = ProductFromDatabase.parse(databaseResult); 
+  res.status(200).json(product);
+})
 
-    const databaseResult = await createProduct(product);
-    const result = ProductFromDatabase.parse(databaseResult);
-    return result;
-  } catch(error) {
-    return res.sendStatus(500);
-  }
-}
+export const createProductController = asyncHandler(async (req: express.Request, res: express.Response) => {
+  const product = InsertProductSchema.parse(req.body);
+  const databaseResult = await service.create(product);
+  const result = ProductFromDatabase.parse(databaseResult);
+  res.status(201).json(result)
+})
 
-export const getProductsController = async (req: express.Request, res: express.Response) => {
-  try {
-    const result = await getProducts();
-    const products = ProductsFromDatabase.parse(result);
-    return res.status(200).json(products);
-  } catch (error){
-    console.log(error);
-    return res.sendStatus(500);
-  }
-}
+export const updateProductController = asyncHandler(async (req: express.Request, res: express.Response) => {
+  const { id } = paramsSchema.parse(req.params)
+  const data = InsertProductSchema.parse(req.body); 
+  const databaseResult = await service.update(id, data)
+  if (!databaseResult) throw new HttpError(404, `Product with ID ${id} not found`);
+  const product = ProductFromDatabase.parse(databaseResult); 
+  res.status(200).json(product);
+})
 
-export const updateProductController = async (req: express.Request, res: express.Response) => {
-  try {
-    if (req.params.id == undefined) {
-      return res.status(400).json({message: "Invalid data was provided"})
-    }
-    const id = parseInt(req.params.id);
-    if (isNaN(id)) {
-      return res.status(400).json({message: "Invalid data was provided"})
-    }
-    const data = InsertProductSchema.parse(req.body); 
-    const result = await updateProduct(id, data)
-    const product = ProductFromDatabase.parse(result); 
-    return res.status(200).json(product);
-  } catch (error) {
-    console.log(error);
-    return res.status(500);
-  }
-}
+export const deleteProductController = asyncHandler(async (req: express.Request, res: express.Response) => {
+  const { id } = paramsSchema.parse(req.params)
+  const databaseResult = await service.delete(id)
+  if (!databaseResult) throw new HttpError(404, `Product with ID ${id} not found`);
+  const product = ProductFromDatabase.parse(databaseResult); 
+  res.status(200).json(product);
+})
