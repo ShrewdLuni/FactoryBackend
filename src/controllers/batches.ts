@@ -1,73 +1,69 @@
 import express from 'express'
-import z from 'zod';
-import { InitializeBatchSchema } from "schemas/batches";
-import { getAllBatchesWithProducts, createBatches, scanBatch, getBatch } from "../services/batches"
+import { BatchesFromDatabase, BatchesWithProductFromDatabase, BatchFromDatabase, InitializeBatchSchema, InsertBatchSchema } from "schemas/batches";
+import { paramsSchema } from 'schemas/utils';
+import { asyncHandler } from 'utils/errorHandler';
+import { batchesService as service } from 'services/batches';
 
-export const getBatchController = async (req: express.Request, res: express.Response) => {
-  try {
-    
-    if (req.params.id == undefined) {
-      return res.status(400).json({message: "Invalid data was provided"})
-    }
+export const getBatchController = asyncHandler( async (req: express.Request, res: express.Response) => {
+  const { id } = paramsSchema.parse(req.params)
+  const data = await service.get(id)
+  const batch = BatchFromDatabase.parse(data)
+  res.status(200).json(batch);
+})
 
-    const id = parseInt(req.params.id);
+export const getBatchesController = asyncHandler(async (req: express.Request, res: express.Response) => {
+  const withProducts = req.query.withProducts === 'true'
+  const data = withProducts ? await service.getAllWithProducts() : await service.getAll()
+  const batches = withProducts ? BatchesWithProductFromDatabase.parse(data) : BatchesFromDatabase.parse(data)
+  res.status(200).json(batches);
+})
 
-    if (isNaN(id)) {
-      return res.status(400).json({message: "Invalid data was provided"})
-    }
+export const createBatchController = asyncHandler(async (req: express.Request, res: express.Response) => {
+  const data = InsertBatchSchema.parse(req.body)
+  const result = await service.create(data)
+  const batch = BatchFromDatabase.parse(result)
+  res.status(200).json(batch);
+})
 
-    const data = await getBatch(id)
-    return res.status(200).json(data);
-  } catch (error) {
-    console.log(error)
-    return res.status(500);
-  }
+export const updateBatchController = asyncHandler(async (req: express.Request, res: express.Response) => {
+  const { id } = paramsSchema.parse(req.params)
+  const data = InsertBatchSchema.parse(req.body)
+  const result = await service.update(id, data)
+  const batch = BatchFromDatabase.parse(result)
+  res.status(200).json(batch);
+})
 
-}
+export const deleteBatchController = asyncHandler(async (req: express.Request, res: express.Response) => {
+  const { id } = paramsSchema.parse(req.params)
+  const data = await service.delete(id)
+  const batch = BatchFromDatabase.parse(data)
+  res.status(200).json(batch);
+})
 
-export const getAllBatchesController = async (req: express.Request, res: express.Response) => {
-   try {
-    const data = await getAllBatchesWithProducts();
-    return res.status(200).json(data);
-   } catch (error) {
-    console.log(error);
-    return res.status(500);
-  }
-}
+export const scanBatchController = asyncHandler(async (req: express.Request, res: express.Response) => {
+  const { id } = paramsSchema.parse(req.params)
+  console.log(`User: ${req.userId} scanned batch: ${id}`)
+  const data = await service.scan(id);
+  res.status(200).json(data);
+})
 
-export const scanBatchController = async (req: express.Request, res: express.Response) => {
-  try {
-    if (req.params.id === undefined) {
-      return res.status(400).json({ error: 'Invalid data provided'})
-    }
+export const createMultipleBatchesController = asyncHandler(async (req: express.Request, res: express.Response) => {
+  console.log(req.body)
+  const { batch, amount } = InitializeBatchSchema.parse(req.body);
+  console.log(batch, amount)
+  const data = await service.createMultiple(batch, amount);
+  res.status(200).json(data);
+})
 
-    const batchId = parseInt(req.params.id);
+export const initializePlannedBatchesController = asyncHandler(async (req: express.Request, res: express.Response) => {
+  const data = await service.initializePlanned();
+  const plannedBatches = BatchesFromDatabase.parse(data);
+  res.status(201).json(plannedBatches);
+})
 
-    if(isNaN(batchId)) {
-      return res.status(400).json({ error: 'Invalid data provided'})
-    }
+export const executePlannedBatchesController = asyncHandler(async (req: express.Request, res: express.Response) => {
+  const data = await service.executePlanned();
+  const plannedBatches = BatchesFromDatabase.parse(data);
+  res.status(201).json(plannedBatches);
+})
 
-    const data = await scanBatch(batchId)
-    return res.status(200).json(data);
-  } catch (error) {
-    console.log(error);
-    return res.status(500);
-  }
-}
-
-export const createBatchControler = async (req: express.Request, res: express.Response) => {
-  try {
-    console.log(req.body)
-    const { batch, amount } = InitializeBatchSchema.parse(req.body);
-    console.log(batch, amount)
-    const data = await createBatches(batch, amount);
-    return res.status(200).json(data);
-  } catch (error) {
-    console.log(error);
-    if (error instanceof z.ZodError) {
-      return res.status(400).json("Invalid data was provided")
-    }
-
-    return res.status(500);
-  }
-}
