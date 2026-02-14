@@ -1,9 +1,10 @@
 import { getUsersController, updateUserController } from "controllers/users";
 import express from "express";
+import { authenticate } from "middleware/auth";
 
 const router = express.Router();
 
-router.get('/', getUsersController)
-router.put('/:id', updateUserController)
+router.get('/', authenticate, getUsersController)
+router.put('/:id', authenticate, updateUserController)
 
 export default router;
