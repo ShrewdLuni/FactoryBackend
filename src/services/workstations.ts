@@ -25,3 +25,11 @@ export const createWorkstation = async (data: InsertWorkstation): Promise<Databa
   const result = await query("INSERT INTO workstations (name, qr_code) VALUES($1, $2) RETURNING *", [data.name, data.qrCode]);
   return result.rows[0];
 }
+
+export const workstationService = {
+  getAll: getAllWorkstations,
+  get: getWorkstation,
+  create: createWorkstation,
+  update: updateWorkstation,
+  delete: deleteWorkstation,
+}

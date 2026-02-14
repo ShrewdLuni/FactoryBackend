@@ -11,6 +11,11 @@ export const getQRCode = async (id: number): Promise<DatabaseQRCode[]> => {
   return result.rows[0];
 }
 
+export const createQRCode = async (data: InsertQRCode): Promise<DatabaseQRCode> => {
+  const result = await query(`INSERT INTO qr_codes (name, resource) VALUES($1, $2) RETURNING *`, [data.name, data.resource])
+  return result.rows[0]
+}
+
 export const createQRCodes = async (data: InsertQRCode, amount: number): Promise<DatabaseQRCode[]> => {
   const result = await query(`INSERT INTO qr_codes (name, resource) SELECT $1, $2 FROM generate_series(1, $3) RETURNING *`, [data.name, data.resource, amount])
   return result.rows;
@@ -29,4 +34,14 @@ export const deleteQRCode = async (id: number): Promise<DatabaseQRCode[]> => {
 export const activateQRCode = async (id: number, resource: string): Promise<DatabaseQRCode[]> => {
   const result = await query(`UPDATE qr_codes SET resource = $1 WHERE id = $2 RETURNING *`, [resource, id])
   return result.rows[0];
+}
+
+export const qrcodeService = {
+  getAll: getQRCodes,
+  get: getQRCode,
+  create: createQRCode,
+  update: updateQRCode,
+  delete: deleteQRCode,
+  createMultiple: createQRCodes,
+  activate: activateQRCode,
 }
