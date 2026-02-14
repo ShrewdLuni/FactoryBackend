@@ -15,3 +15,9 @@ export const deleteAuthentication = async (id: number): Promise<Authentication> 
   const result = await query("DELETE FROM authentication WHERE id = $1 RETURNING *", [id]);
   return result.rows[0]
 }
+
+export const authenticationService = {
+  create: createAuthentication,
+  update: updateAuthentication,
+  delete: deleteAuthentication,
+}

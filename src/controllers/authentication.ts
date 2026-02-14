@@ -1,5 +1,5 @@
 import express from "express";
-import { createAuthentication } from "services/authentication";
+import { authenticationService } from "services/authentication";
 import {
   createUser,
   getUserByCode,
@@ -12,109 +12,53 @@ import { random, authentication } from "utils/authentication";
 import { DatabaseUserWithAuth, LoginSchema, RegisterSchema, UserFromDatabase, type DatabaseUser} from "schemas/users";
 import type { InsertAuthentication } from "schemas/authentication";
 import jwt from "jsonwebtoken";
+import { asyncHandler, HttpError } from "utils/errorHandler";
 
-export const register = async (req: express.Request, res: express.Response) => {
-  try {
-    const { user, password } = RegisterSchema.parse(req.body);
+export const register = asyncHandler(async (req: express.Request, res: express.Response) => {
+  const { user, password } = RegisterSchema.parse(req.body);
+  if (!user.code && !user.username) throw new HttpError(401, "You must provide code or username")
 
-    let existingUser: DatabaseUser;
+  const existingUser  = user.code ? await getUserByCode(user.code) : await getUserByUsername(user.username!);
+  if (existingUser) throw new HttpError(409, "User already exists");
 
-    if (user.code) {
-      existingUser = await getUserByCode(user.code);
-    } else if (user.username) {
-      existingUser = await getUserByUsername(user.username);
-    } else {
-      return res
-        .status(401)
-        .json({ message: "You must provide code or username" });
-    }
+  const addedUser = await createUser(user);
 
-    if (existingUser) {
-      return res.status(409).json({ message: "User already exists" });
-    }
+  const salt = random();
+  const hash = authentication(salt, password);
 
-    const addedUser = await createUser(user);
+  const authObject: InsertAuthentication = {userId: addedUser.id, salt, hash};
 
-    const salt = random();
-    const hash = authentication(salt, password);
+  await authenticationService.create(authObject);
 
-    const authObject: InsertAuthentication = {
-      userId: addedUser.id,
-      salt,
-      hash,
-    };
+  const result = UserFromDatabase.parse(addedUser)
+  res.status(200).json(result).end();
+});
 
-    const addedAuth = await createAuthentication(authObject);
+export const login = asyncHandler(async (req: express.Request, res: express.Response) => {
+  const { user, password } = LoginSchema.parse(req.body);
+  if (!user.code && !user.username) throw new HttpError(401, "You must provide code or username")
 
-    const result = UserFromDatabase.parse(addedUser)
+  const existingUser: DatabaseUserWithAuth = user.code ? await getUserWithAuthByCode(user.code) : await getUserWithAuthByUsername(user.username!);
+  if (!existingUser) throw new HttpError(401, "User is not found")
 
-    return res.status(200).json(result).end();
-  } catch (error) {
-    console.log(error);
-    return res.status(400).json({ message: "Invalide data provided" });
-  }
-};
+  const expectedHash = authentication(existingUser.salt, password);
+  if (expectedHash != existingUser.hash) throw new HttpError(401, "Invalid credentials")
 
-export const login = async (req: express.Request, res: express.Response) => {
-  try {
-    const { user, password } = LoginSchema.parse(req.body);
+  const token = jwt.sign({ userId: existingUser.id }, process.env.JWT_SECRET!,{ expiresIn: "1h" },);
 
-    if (!user.code && !user.username) {
-      return res
-        .status(401)
-        .json({ message: "You must provide code or username" });
-    }
+  res.cookie("token", token, { httpOnly: true, maxAge: 60 * 60 * 1000 });
+  res.status(200).json("Success!").end();
+});
 
-    let existingUser: DatabaseUserWithAuth; 
-
-    if (user.code) {
-      existingUser = await getUserWithAuthByCode(user.code);
-    } else {
-      existingUser = await getUserWithAuthByUsername(user.username!);
-    }
-
-    if (!existingUser) {
-      return res.status(401).json({ message: "User is not found" });
-    }
-
-    const expectedHash = authentication(existingUser.salt, password);
-
-    if (expectedHash != existingUser.hash) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    const token = jwt.sign(
-      { userId: existingUser.id },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
-    );
-    res.cookie("token", token, { httpOnly: true, maxAge: 60 * 60 * 1000 });
-
-    return res.status(200).json("Success!").end();
-  } catch (error) {
-    console.log(error);
-    return res.sendStatus(400);
-  }
-};
-
-export const logout = async (req: express.Request, res: express.Response) => {
+export const logout = asyncHandler(async (req: express.Request, res: express.Response) => {
   res.clearCookie("token", { httpOnly: true });
   res.status(200).json({message: "Logged out successfully"}).end();
-}
+});
 
-export const whoami = async (req: express.Request, res: express.Response) => {
-  try {
-    if (!req.userId) return res.sendStatus(401);
-
-    const user = await getUserById(req.userId!);
-
-    if (!user) return res.sendStatus(404);
-
-    const result = UserFromDatabase.parse(user);
-
-    res.json(result);
-  } catch (error) {
-    console.error(error);
-    res.sendStatus(500);
-  }
-};
+export const whoami = asyncHandler(async (req: express.Request, res: express.Response) => {
+  if (!req.userId) throw new HttpError(401, `Invalid data, you must provide userId`);
+  const databaseResult = await getUserById(req.userId);
+  if (!databaseResult) throw new HttpError(404, `User with ID ${req.userId} not found`);
+  const result = UserFromDatabase.parse(databaseResult);
+  res.status(200).json(result);
+});

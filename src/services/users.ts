@@ -103,30 +103,30 @@ export const getUserWithAuthByUsername = async (username: string): Promise<Datab
   return result.rows[0];
 }
 
-// WIP 
-export const getUser = async (identity: Partial<User>): Promise<DatabaseUser> => { 
-  const where  = buildWhereClause(identity)
-
-  const result = await query((`SELECT * FROM users ${where.clause} LIMIT 1`), where.values)
-  return result.rows[0];
-}
-
-export const updateUser = async (identity: Partial<User>, update: Partial<User>): Promise<User> => {
-  const set = buildSetClause(update)
-  const where  = buildWhereClause(identity, set.values.length + 1)
-
-  const result = await query((`
-    UPDATE users 
-    ${set.clause} 
-    ${where.clause} 
-    RETURNING *`), 
-    [...set.values, ...where.values])
-  return result.rows[0];
-}
-
-export const deleteUser = async (identity: Partial<User>): Promise<any> => { 
-  const where  = buildWhereClause(identity)
-
-  const result = await query((`DELETE FROM users ${where.clause} RETURNING *`), where.values)
-  return result.rows[0];
-}
+// WIP
+// export const getUser = async (identity: Partial<User>): Promise<DatabaseUser> => { 
+//   const where  = buildWhereClause(identity)
+//
+//   const result = await query((`SELECT * FROM users ${where.clause} LIMIT 1`), where.values)
+//   return result.rows[0];
+// }
+//
+// export const updateUser = async (identity: Partial<User>, update: Partial<User>): Promise<User> => {
+//   const set = buildSetClause(update)
+//   const where  = buildWhereClause(identity, set.values.length + 1)
+//
+//   const result = await query((`
+//     UPDATE users 
+//     ${set.clause} 
+//     ${where.clause} 
+//     RETURNING *`), 
+//     [...set.values, ...where.values])
+//   return result.rows[0];
+// }
+//
+// export const deleteUser = async (identity: Partial<User>): Promise<any> => { 
+//   const where  = buildWhereClause(identity)
+//
+//   const result = await query((`DELETE FROM users ${where.clause} RETURNING *`), where.values)
+//   return result.rows[0];
+// }
