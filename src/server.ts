@@ -14,7 +14,7 @@ app.use(cookieParser());
 app.use(cors({ origin: [CLIENT_URL], credentials: true }));
 app.use(logging);
 
-app.use("/api", router);
+app.use(router);
 
 app.get("/health", async (req: express.Request, res: express.Response) => {
   res.status(200);
