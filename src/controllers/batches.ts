@@ -47,10 +47,8 @@ export const scanBatchController = asyncHandler(async (req: express.Request, res
   res.status(200).json(data);
 })
 
-export const createMultipleBatchesController = asyncHandler(async (req: express.Request, res: express.Response) => {
-  console.log(req.body)
+export const createBatchesController = asyncHandler(async (req: express.Request, res: express.Response) => {
   const { batch, amount } = InitializeBatchSchema.parse(req.body);
-  console.log(batch, amount)
   const data = await service.createMultiple(batch, amount);
   res.status(200).json(data);
 })

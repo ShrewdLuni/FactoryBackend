@@ -96,7 +96,11 @@ export const scanBatch = async (id: number): Promise<DatabaseBatch> => {
 
 export const createBatches = async (batch: InsertBatch, amount: number): Promise<DatabaseBatch[]> => {
   const { assignments, values } = buildBatchInsertQuery(batch, amount);
-  const result = await query(`INSERT INTO batches (name, size, product_id, assigned_master_id, planned_for) VALUES ${assignments} RETURNING *`, values);
+  const result = await query(
+    `INSERT INTO batches (name, size, product_id, knitting_worker_id, sewing_worker_id, molding_worker_id, labeling_worker_id, packaging_worker_id, workstation_id, is_planned, planned_for)
+     VALUES ${assignments} RETURNING *`,
+    values
+  );
   return result.rows;
 };
 
