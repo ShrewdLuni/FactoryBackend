@@ -7,7 +7,7 @@ const shared = {
 }
 
 const mapped = {
-  qrCode: DbId,
+  qrCode: DbId.nullish(),
 }
 
 export const WorkstationSchema = z.object({...shared, ...mapped}); 

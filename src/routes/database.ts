@@ -15,7 +15,8 @@ router.get("/add-users", async (req: express.Request, res: express.Response) => 
     logger.info("1C users added/registred");
     res.sendStatus(200);
   }
-  catch {
+  catch (error){
+    logger.error(error)
     logger.info("1C users fail");
     res.sendStatus(200);
   }

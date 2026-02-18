@@ -22,10 +22,10 @@ export const getWorkstationController = asyncHandler(async (req: express.Request
 
 export const createWorkstationController = asyncHandler(async (req: express.Request, res: express.Response) => {
   const data = InsertWorkstationSchema.parse(req.body); 
+  if (!data.qrCode) data.qrCode = (await qrcodeService.create({name: "Workstation"})).id
   const result = await service.create(data); 
   const workstation = WokrstationFromDatabase.parse(result); 
-  const qrCode = await qrcodeService.activate(data.qrCode, `${CLIENT_URL}/workstations/${workstation.id}`)
-  if (!qrCode) throw new HttpError(404, `QR-Code with ID ${data.qrCode} not found`);
+  await qrcodeService.activate(data.qrCode, `${CLIENT_URL}/workstations/${workstation.id}`)
   res.status(201).json(workstation);
 })
 

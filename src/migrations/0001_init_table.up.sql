@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS authentication (
 CREATE TABLE IF NOT EXISTS qr_codes (
   id SERIAL PRIMARY KEY,
   name TEXT,
-  resource TEXT,
+  resource TEXT DEFAULT '',
   is_taken BOOLEAN GENERATED ALWAYS AS (resource IS NOT NULL) STORED
 );
 
