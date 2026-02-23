@@ -6,6 +6,8 @@ CREATE TYPE batch_progress as ENUM (
   'Knitting Workshop (Finished)',
   'Sewing Workshop (In-Progress)',
   'Sewing Workshop (Finished)',
+  'Turning Workshop (In-Progress)',
+  'Turning Workshop (Finished)',
   'Molding Workshop (In-Progress)',
   'Molding Workshop (Finished)',
   'Labeling Workshop (In-Progress)',
@@ -14,6 +16,7 @@ CREATE TYPE batch_progress as ENUM (
   'Packaging Workshop (Finished)',
   'Completed'
 ); 
+
 
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY, 
@@ -68,19 +71,27 @@ CREATE TABLE IF NOT EXISTS batches (
   id SERIAL PRIMARY KEY, 
   name TEXT DEFAULT NULL, 
   size INTEGER NOT NULL DEFAULT 100, 
+  actual_size INTEGER NOT NULL DEFAULT 100, 
   product_id INTEGER REFERENCES products(id) ON DELETE CASCADE, 
   knitting_worker_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
   sewing_worker_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  turning_worker_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
   molding_worker_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
   labeling_worker_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
   packaging_worker_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
   workstation_id INTEGER REFERENCES workstations(id) ON DELETE CASCADE,
   progress_status batch_progress NOT NULL DEFAULT 'Inactive', 
-  is_planned BOOLEAN NOT NULL DEFAULT True,
+  is_planned BOOLEAN NOT NULL DEFAULT False,
   planned_for date DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(), 
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 ); 
+
+CREATE TABLE spoilage_logs (
+  id SERIAL PRIMARY KEY,
+  batch_id INT,
+  defects JSONB
+);
 
 -- Functions
 CREATE OR REPLACE FUNCTION set_batch_name() 
@@ -127,11 +138,13 @@ BEGIN
   END IF;
 
   new_status := CASE current_status
-    WHEN 'Inactive'                       THEN 'Knitting Workshop (In-Progress)'
+    WHEN 'Inactive'                         THEN 'Knitting Workshop (In-Progress)'
     WHEN 'Knitting Workshop (In-Progress)'  THEN 'Knitting Workshop (Finished)'
     WHEN 'Knitting Workshop (Finished)'     THEN 'Sewing Workshop (In-Progress)'
     WHEN 'Sewing Workshop (In-Progress)'    THEN 'Sewing Workshop (Finished)'
-    WHEN 'Sewing Workshop (Finished)'       THEN 'Molding Workshop (In-Progress)'
+    WHEN 'Sewing Workshop (Finished)'       THEN 'Turning Workshop (In-Progress)'
+    WHEN 'Turning Workshop (In-Progress)'   THEN 'Turning Workshop (Finished)'
+    WHEN 'Turning Workshop (Finished)'      THEN 'Molding Workshop (In-Progress)'
     WHEN 'Molding Workshop (In-Progress)'   THEN 'Molding Workshop (Finished)'
     WHEN 'Molding Workshop (Finished)'      THEN 'Labeling Workshop (In-Progress)'
     WHEN 'Labeling Workshop (In-Progress)'  THEN 'Labeling Workshop (Finished)'

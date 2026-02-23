@@ -3,6 +3,8 @@ import { BatchesFromDatabase, BatchesWithProductFromDatabase, BatchFromDatabase,
 import { paramsSchema } from 'schemas/utils';
 import { asyncHandler } from 'utils/errorHandler';
 import { batchesService as service } from 'services/batches';
+import logger from 'logger';
+
 
 export const getBatchController = asyncHandler( async (req: express.Request, res: express.Response) => {
   const { id } = paramsSchema.parse(req.params)
@@ -47,6 +49,12 @@ export const scanBatchController = asyncHandler(async (req: express.Request, res
   res.status(200).json(data);
 })
 
+export const updateBatchSpoilageController = asyncHandler(async (req: express.Request, res: express.Response) => {
+  const { id } = paramsSchema.parse(req.params)
+  const data = await service.scan(id);
+  res.status(200).json(data);
+})
+
 export const createBatchesController = asyncHandler(async (req: express.Request, res: express.Response) => {
   const { batch, amount } = InitializeBatchSchema.parse(req.body);
   const data = await service.createMultiple(batch, amount);
@@ -65,3 +73,10 @@ export const executePlannedBatchesController = asyncHandler(async (req: express.
   res.status(201).json(plannedBatches);
 })
 
+export const persistSpoilageController = asyncHandler(async (req, res) => {
+  const { id } = paramsSchema.parse(req.params);
+  const { defects } = req.body;
+  logger.log(defects)
+  await service.logSpoilage(id, defects)
+  res.status(200).json({ ok: true });
+});

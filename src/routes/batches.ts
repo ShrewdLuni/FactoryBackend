@@ -1,4 +1,4 @@
-import { getBatchesController, getBatchController, scanBatchController, initializePlannedBatchesController, updateBatchController, deleteBatchController, createBatchController, executePlannedBatchesController, createBatchesController } from "controllers/batches";
+import { getBatchesController, getBatchController, scanBatchController, initializePlannedBatchesController, updateBatchController, deleteBatchController, createBatchController, executePlannedBatchesController, createBatchesController, persistSpoilageController } from "controllers/batches";
 import express from "express";
 import { authenticate } from "middleware/auth";
 
@@ -13,5 +13,6 @@ router.delete('/:id', authenticate, deleteBatchController)
 router.patch('/:id/scan', authenticate, scanBatchController)
 router.post('/planned', authenticate, initializePlannedBatchesController)
 router.patch('/planned/execute', authenticate, executePlannedBatchesController)
+router.patch('/:id/spoilage', persistSpoilageController)
 
 export default router;

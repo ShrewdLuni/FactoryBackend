@@ -17,6 +17,7 @@ export const asyncHandler = (fn: AsyncController) => async (req: express.Request
     await fn(req, res)
   } catch (error: any) {
     if (error instanceof ZodError) {
+      logger.error(error)
       return res.status(400).json({ error: "Invalid data", details: error.message })
     }
     if (error.status && error.message) {

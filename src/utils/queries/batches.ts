@@ -1,6 +1,6 @@
 import type { InsertBatch } from "schemas/batches";
 
-const FIELDS_PER_BATCH = 11;
+const FIELDS_PER_BATCH = 12;
 
 export const buildBatchInsertQuery = (batch: InsertBatch, amount: number) => {
   const fullBatchesQuantity = Math.floor(amount / batch.size);
@@ -20,6 +20,7 @@ export const buildBatchInsertQuery = (batch: InsertBatch, amount: number) => {
       batch.productId,
       batch.masters.knitting,
       batch.masters.sewing,
+      batch.masters.turning,
       batch.masters.molding,
       batch.masters.labeling,
       batch.masters.packaging,

@@ -8,6 +8,8 @@ const progressEnum = z.enum([
   'Knitting Workshop (Finished)',
   'Sewing Workshop (In-Progress)',
   'Sewing Workshop (Finished)',
+  'Turning Workshop (In-Progress)',
+  'Turning Workshop (Finished)',
   'Molding Workshop (In-Progress)',
   'Molding Workshop (Finished)',
   'Labeling Workshop (In-Progress)',
@@ -25,16 +27,18 @@ const shared = {
 
 const mapped = {
   productId: DbId.nullish(),
-  workstationId: DbId,
+  workstationId: DbId.nullish(),
   progressStatus: progressEnum,
+  actualSize: z.int().positive().nullish(),
   masters: z.object({
     knitting: DbId.nullish(),
     sewing: DbId.nullish(),
+    turning: DbId.nullish(),
     molding: DbId.nullish(),
     labeling: DbId.nullish(),
     packaging: DbId.nullish(),
   }),
-  isPlanned: z.boolean(),
+  isPlanned: z.boolean().nullish().default(false),
   plannedFor: z.coerce.date().default(() => new Date()),
  ...Timestamps
 }
@@ -51,8 +55,10 @@ export const BatchWithProductSchema = BatchSchema.extend({
 export const DatabaseBatchSchema = z.object({
   ...shared,
   product_id: mapped.productId,
+  actual_size: mapped.actualSize,
   knitting_worker_id: mapped.masters.shape.knitting,
   sewing_worker_id: mapped.masters.shape.sewing,
+  turning_worker_id: mapped.masters.shape.turning,
   molding_worker_id: mapped.masters.shape.molding,
   labeling_worker_id: mapped.masters.shape.labeling,
   packaging_worker_id: mapped.masters.shape.packaging,
@@ -73,9 +79,11 @@ export const BatchFromDatabase = DatabaseBatchSchema.transform((db) => ({
   name: db.name,
   size: db.size,
   productId: db.product_id,
+  actualSize: db.actual_size,
   masters: {
     knitting: db.knitting_worker_id,
     sewing: db.sewing_worker_id,
+    turning: db.turning_worker_id,
     molding: db.molding_worker_id,
     labeling: db.labeling_worker_id,
     packaging: db.packaging_worker_id,
@@ -107,8 +115,10 @@ export const DatabaseFromBatch = BatchSchema.transform((batch) => ({
   name: batch.name,
   product_id: batch.productId,
   size: batch.size,
+  actual_size: batch.actualSize,
   knitting_worker_id: batch.masters.knitting,
   sewing_worker_id: batch.masters.sewing,
+  turning_worker_id: batch.masters.turning,
   molding_worker_id: batch.masters.molding,
   labeling_worker_id: batch.masters.labeling,
   packaging_worker_id: batch.masters.packaging,

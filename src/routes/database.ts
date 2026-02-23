@@ -1,9 +1,9 @@
+import logger from "logger";
 import express from "express"
 import { migrateDatabase, testDatabase } from "controllers/database";
-import logger from "logger";
-import { AddUsersToDB } from "utils/1C/AddUsersToDB";
 import { AddProductsToDB } from "utils/1C/AddProductsToDB";
 import { RegisterExternalUsers } from "utils/1C/RegisterUsers";
+import { createAllWorkstations } from "utils/1C/AddWorkstations";
 
 const router = express.Router()
 
@@ -18,7 +18,7 @@ router.get("/add-users", async (req: express.Request, res: express.Response) => 
   catch (error){
     logger.error(error)
     logger.info("1C users fail");
-    res.sendStatus(200);
+    res.sendStatus(500);
   }
 })
 router.get("/add-products", async (req: express.Request, res: express.Response) => {
@@ -29,8 +29,20 @@ router.get("/add-products", async (req: express.Request, res: express.Response) 
   }
   catch (error) {
     logger.info("1C products fail");
+    res.sendStatus(500);
+  }
+})
+router.get("/add-workstations", async (req: express.Request, res: express.Response) => {
+  try {
+    await createAllWorkstations()
+    logger.info("workstations added");
     res.sendStatus(200);
   }
+  catch (error) {
+    logger.info("workstations failed");
+    res.sendStatus(500);
+  }
+
 })
 
 export default router;

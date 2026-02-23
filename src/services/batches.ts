@@ -28,22 +28,26 @@ export const createBatch = async (data: InsertBatch): Promise<DatabaseBatch> => 
   (
       name, 
       size, 
+      actual_size, 
       product_id,
       knitting_worker_id,
       sewing_worker_id,
+      turning_worker_id,
       molding_worker_id,
       labeling_worker_id,
       packaging_worker_id,
       workstation_id,
       is_planned,
-      planend_for
-    ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
+      planned_for 
+    ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *`,
     [
       data.name,
+      data.size,
       data.size,
       data.productId,
       data.masters.knitting,
       data.masters.sewing,
+      data.masters.turning,
       data.masters.molding,
       data.masters.labeling,
       data.masters.packaging,
@@ -60,24 +64,28 @@ export const updateBatch = async (id: number, data: InsertBatch) => {
     `UPDATE batches  SET
       name = $2, 
       size = $3, 
-      product_id = $4,
-      knitting_worker_id = $5,
-      sewing_worker_id = $6,
-      molding_worker_id = $7,
-      labeling_worker_id = $8,
-      packaging_worker_id = $9,
-      workstation_id = $10,
-      is_planned = $11,
-      planned_for = $12
+      actual_size = $4, 
+      product_id = $5,
+      knitting_worker_id = $6,
+      sewing_worker_id = $7,
+      turning_worker_id = $8,
+      molding_worker_id = $9,
+      labeling_worker_id = $10,
+      packaging_worker_id = $11,
+      workstation_id = $12,
+      is_planned = $13,
+      planned_for = $14
     WHERE id = $1
     RETURNING *`,
     [
       id,
       data.name,
       data.size,
+      data.actualSize,
       data.productId,
       data.masters.knitting,
       data.masters.sewing,
+      data.masters.turning,
       data.masters.molding,
       data.masters.labeling,
       data.masters.packaging,
@@ -97,7 +105,7 @@ export const scanBatch = async (id: number): Promise<DatabaseBatch> => {
 export const createBatches = async (batch: InsertBatch, amount: number): Promise<DatabaseBatch[]> => {
   const { assignments, values } = buildBatchInsertQuery(batch, amount);
   const result = await query(
-    `INSERT INTO batches (name, size, product_id, knitting_worker_id, sewing_worker_id, molding_worker_id, labeling_worker_id, packaging_worker_id, workstation_id, is_planned, planned_for)
+    `INSERT INTO batches (name, size, product_id, knitting_worker_id, sewing_worker_id, turning_worker_id, molding_worker_id, labeling_worker_id, packaging_worker_id, workstation_id, is_planned, planned_for)
      VALUES ${assignments} RETURNING *`,
     values
   );
@@ -122,6 +130,14 @@ export const executePlannedBatches = async (): Promise<DatabaseBatch[]> => {
   return result.rows;
 };
 
+export const spoilageLog = async (batchId: number, defects: unknown): Promise<void> => {
+  await query(
+    "INSERT INTO spoilage_logs (batch_id, defects) VALUES ($1, $2) RETURNING *",
+    [batchId, JSON.stringify(defects)]
+  );
+}
+
+
 export const batchesService = {
   getAll: getBatches,
   get: getBatch,
@@ -134,4 +150,6 @@ export const batchesService = {
   createMultiple: createBatches,
   initializePlanned: initializePlannedBatches,
   executePlanned: executePlannedBatches,
+
+  logSpoilage: spoilageLog
 };
