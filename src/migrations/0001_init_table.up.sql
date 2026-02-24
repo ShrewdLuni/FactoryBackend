@@ -87,12 +87,6 @@ CREATE TABLE IF NOT EXISTS batches (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 ); 
 
-CREATE TABLE spoilage_logs (
-  id SERIAL PRIMARY KEY,
-  batch_id INT,
-  defects JSONB
-);
-
 -- Functions
 CREATE OR REPLACE FUNCTION set_batch_name() 
 RETURNS TRIGGER AS $$ 
