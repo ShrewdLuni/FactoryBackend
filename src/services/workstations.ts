@@ -16,6 +16,11 @@ export const updateWorkstation = async (id: number, data: InsertWorkstation): Pr
   return result.rows[0];
 }
 
+export const softDeleteWorkstation = async (id: number): Promise<DatabaseWorkstation> => {
+  const result = await query("UPDATE workstations SET is_active = FALSE WHERE id = $1 RETURNING *", [id])
+  return result.rows[0]
+}
+
 export const deleteWorkstation = async (id: number): Promise<DatabaseWorkstation> => {
   const result = await query("DELETE FROM workstations WHERE id = $1 RETURNING *", [id]);
   return result.rows[0];
@@ -32,4 +37,5 @@ export const workstationService = {
   create: createWorkstation,
   update: updateWorkstation,
   delete: deleteWorkstation,
+  softDelete: softDeleteWorkstation,
 }
