@@ -1,6 +1,6 @@
 import { Pool } from "pg"
 import dotenv from "dotenv"
-import type { QueryArrayConfig, QueryArrayResult, QueryConfig, QueryConfigValues, QueryResult, QueryResultRow, Submittable} from 'pg';
+import type { PoolClient, QueryArrayConfig, QueryArrayResult, QueryConfig, QueryConfigValues, QueryResult, QueryResultRow, Submittable} from 'pg';
 
 dotenv.config()
 
@@ -47,4 +47,19 @@ export function query<R extends QueryResultRow = any, I = any[]>(
 export function query(...args: any[]): any {
   // @ts-ignore — TypeScript already knows overloads; runtime doesn't need typing.
   return pool.query(...args);
+}
+
+export async function transaction<T>(fn: (client: PoolClient) => Promise<T>): Promise<T> {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const result = await fn(client);
+    await client.query("COMMIT");
+    return result;
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
 }
