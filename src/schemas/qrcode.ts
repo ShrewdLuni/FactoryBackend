@@ -14,13 +14,13 @@ const mapped = {
 
 export const QRCodeSchema = z.object({ ...shared, ...mapped });
 
-export const DatabaseQRCodeSchema = z.object({
+export const QRCodeRowSchema = z.object({
   ...shared,
   is_taken: mapped.isTaken,
   is_active: mapped.isActive,
 });
 
-export const QRCodeFromDatabase = DatabaseQRCodeSchema.transform((db) => {
+export const QRCodeFromRow = QRCodeRowSchema.transform((db) => {
   const { is_taken, is_active, ...rest } = db;
   return {
     ...rest,
@@ -29,18 +29,9 @@ export const QRCodeFromDatabase = DatabaseQRCodeSchema.transform((db) => {
   };
 });
 
-export const DatabaseFromQRCode = QRCodeFromDatabase.transform((qr) => {
-  const { isTaken, isActive, ...rest } = qr;
-  return {
-    ...rest,
-    is_taken: qr.isTaken,
-    is_active: qr.isActive,
-  };
-});
+export const QRCodeInsertSchema = QRCodeSchema.omit({ id: true, isTaken: true }).partial({isActive: true});
 
-export const InsertQRCodeSchema = QRCodeSchema.omit({ id: true, isTaken: true });
-
-export const InitializeQRCodeSchema = InsertQRCodeSchema
+export const QRCodeInitialzieSchema = QRCodeInsertSchema
 .extend({ amount: z.int().positive() })
 .transform(({ amount, ...qrcode }) => ({
     qrcode,
@@ -48,9 +39,13 @@ export const InitializeQRCodeSchema = InsertQRCodeSchema
   }),
 );
 
-export const QRCodesFromDatabase = QRCodeFromDatabase.array();
-export const DatabaseFromQRCodes = DatabaseFromQRCode.array();
+export const QRCodeLinkSchema = z.object({
+  id: DbId,
+  resource: z.string(),
+});
 
-export type InsertQRCode = z.infer<typeof InsertQRCodeSchema>;
 export type QRCode = z.infer<typeof QRCodeSchema>;
-export type DatabaseQRCode = z.infer<typeof DatabaseQRCodeSchema>;
+export type QRCodeRow = z.infer<typeof QRCodeRowSchema>;
+export type QRCodeInsert = z.infer<typeof QRCodeInsertSchema>;
+export type QRCodeInitialize = z.infer<typeof QRCodeInitialzieSchema>
+export type QRCodeLink = z.infer<typeof QRCodeLinkSchema>
