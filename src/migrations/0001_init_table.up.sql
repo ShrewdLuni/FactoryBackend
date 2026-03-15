@@ -15,9 +15,7 @@ CREATE TABLE departments (
 
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY, 
-  guid TEXT UNIQUE,
   code TEXT UNIQUE, 
-  code_drfo TEXT UNIQUE,
   username TEXT UNIQUE, 
   first_name TEXT NOT NULL, 
   last_name TEXT NOT NULL, 
@@ -30,7 +28,7 @@ CREATE TABLE IF NOT EXISTS users (
   email TEXT DEFAULT NULL, 
   phone TEXT DEFAULT NULL, 
   gender gender NOT NULL DEFAULT 'Other', 
-  role_id INT NOT NULL REFERENCES roles(id) ON DELETE RESTRICT, 
+  role_id INT REFERENCES roles(id) ON DELETE RESTRICT, 
   is_active BOOLEAN NOT NULL DEFAULT TRUE
 ); 
 
@@ -40,7 +38,7 @@ CREATE TABLE user_departments (
   PRIMARY KEY (user_id, department_id)
 );
 
-CREATE TABLE IF NOT EXISTS auth (
+CREATE TABLE IF NOT EXISTS authentication (
   user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE, 
   hash TEXT NOT NULL, 
   salt TEXT NOT NULL
@@ -187,7 +185,6 @@ CREATE TRIGGER batches_set_updated_at
 BEFORE UPDATE ON batches
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at();
- 
  
 CREATE OR REPLACE FUNCTION scan_batch(p_batch_id INT, p_actor_id INT)
 RETURNS batches AS $$
