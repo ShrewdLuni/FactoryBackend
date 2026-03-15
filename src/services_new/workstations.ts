@@ -4,7 +4,7 @@ export class WorkstationService {
 
   private workstationRepository: WorkstationRepository;
 
-  constructor (workstationRepository: WorkstationRepository) {
+  constructor (workstationRepository?: WorkstationRepository) {
     this.workstationRepository = workstationRepository ?? new WorkstationRepository()
   }
 

@@ -1,11 +1,16 @@
 import type express from "express";
 import { UserInsertSchema, UserLoginSchema, UserRegisterSchema } from "schemas/user";
 import { paramsSchema } from "schemas/utils";
-import type { UserService } from "services_new/users";
+import { UserService } from "services_new/users";
 import { asyncHandler } from "utils/errorHandler";
 
 export class UserController {
-  constructor(private userService: UserService) {}
+
+  private userService: UserService;
+
+  constructor(userService?: UserService) {
+    this.userService = userService ?? new UserService();
+  }
 
   find = asyncHandler(async (req: express.Request, res: express.Response) => {
     const { id } = paramsSchema.parse(req.params);

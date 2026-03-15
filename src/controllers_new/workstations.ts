@@ -1,11 +1,16 @@
 import { paramsSchema } from "schemas/utils";
-import type { WorkstationService } from "services_new/workstations";
+import { WorkstationService } from "services_new/workstations";
 import { asyncHandler } from "utils/errorHandler";
 import type express from "express";
 
 export class WorkstationController {
 
-  constructor (private workstationService: WorkstationService) {}
+  private workstationService: WorkstationService;
+
+  constructor (workstationService?: WorkstationService) {
+
+    this.workstationService = workstationService ?? new WorkstationService()
+  }
 
   find = asyncHandler(async (req: express.Request, res: express.Response) => {
     const { id } = paramsSchema.parse(req.params);

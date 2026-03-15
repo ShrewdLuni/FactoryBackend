@@ -1,10 +1,15 @@
 import type express from "express";
 import { UserLoginSchema, UserRegisterSchema } from "schemas/user";
-import type { AuthenticationService } from "services_new/auth";
+import { AuthenticationService } from "services_new/auth";
 import { asyncHandler, HttpError } from "utils/errorHandler";
 
 export class AuthenticationController {
-  constructor(private authService: AuthenticationService) {}
+
+  private authService: AuthenticationService;
+
+  constructor(authService?: AuthenticationService) {
+    this.authService = authService ?? new AuthenticationService()
+  }
 
   register = asyncHandler(async (req: express.Request, res: express.Response) => {
     const data = UserRegisterSchema.parse(req.body);

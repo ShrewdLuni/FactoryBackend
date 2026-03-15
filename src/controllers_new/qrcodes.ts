@@ -1,4 +1,4 @@
-import type { QRCodeService } from "services_new/qrcodes";
+import { QRCodeService } from "services_new/qrcodes";
 import type express from "express";
 import { asyncHandler } from "utils/errorHandler";
 import { paramsSchema } from "schemas/utils";
@@ -7,7 +7,11 @@ import { CLIENT_URL } from "config";
 
 export class QRCodeController {
 
-  constructor (private qrcodeService: QRCodeService) {}
+  private qrcodeService: QRCodeService;
+
+  constructor (qrcodeService?: QRCodeService) {
+    this.qrcodeService = qrcodeService ?? new QRCodeService()
+  }
 
   findMany = asyncHandler(async (req: express.Request, res: express.Response) => {
     const result = await this.qrcodeService.findMany();

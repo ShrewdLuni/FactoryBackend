@@ -6,7 +6,7 @@ export class UserService {
 
   private userRepository: UserRepository; 
 
-  constructor(userRepository: UserRepository) {
+  constructor(userRepository?: UserRepository) {
     this.userRepository = userRepository ?? new UserRepository()
   }
 

@@ -1,12 +1,16 @@
 import express from "express";
 import { asyncHandler } from "utils/errorHandler";
-import type { ProductService } from "services_new/products";
+import { ProductService } from "services_new/products";
 import { paramsSchema } from "schemas/utils";
 import { ProductInsertSchema } from "schemas/products";
 
 export class ProductController {
 
-  constructor(private productService: ProductService) {}
+  private productService: ProductService;
+
+  constructor(productService?: ProductService) {
+    this.productService = productService ?? new ProductService()
+  }
 
   find = asyncHandler(async (req: express.Request, res: express.Response) => {
     const { id } = paramsSchema.parse(req.params);
