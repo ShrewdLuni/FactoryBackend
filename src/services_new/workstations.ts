@@ -1,8 +1,12 @@
-import type { WorkstationRepository } from "repositories/workstations";
+import { WorkstationRepository } from "repositories/workstations";
 
 export class WorkstationService {
 
-  constructor (private workstationRepository: WorkstationRepository) {}
+  private workstationRepository: WorkstationRepository;
+
+  constructor (workstationRepository: WorkstationRepository) {
+    this.workstationRepository = workstationRepository ?? new WorkstationRepository()
+  }
 
   async find(id: number) {
     const workstation = this.workstationRepository.find(id);

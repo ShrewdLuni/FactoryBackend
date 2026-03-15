@@ -1,10 +1,14 @@
-import type { ProductRepository } from "repositories/products";
+import { ProductRepository } from "repositories/products";
 import type { ProductInsert } from "schemas/products";
 import { HttpError } from "utils/errorHandler";
 
 export class ProductService {
 
-  constructor(private productRepository: ProductRepository) {}
+  private productRepository: ProductRepository;
+
+  constructor(productRepository?: ProductRepository) {
+    this.productRepository = productRepository ?? new ProductRepository();
+  }
 
   async find(id: number) {
     const product = await this.productRepository.find(id);

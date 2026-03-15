@@ -1,9 +1,14 @@
-import type { UserRepository } from "repositories/users";
+import { UserRepository } from "repositories/users";
 import type { UserInsert } from "schemas/user";
 import { HttpError } from "utils/errorHandler";
 
 export class UserService {
-  constructor(private userRepository: UserRepository) {}
+
+  private userRepository: UserRepository; 
+
+  constructor(userRepository: UserRepository) {
+    this.userRepository = userRepository ?? new UserRepository()
+  }
 
   async find(id: number) {
     const user = await this.userRepository.find({ id });

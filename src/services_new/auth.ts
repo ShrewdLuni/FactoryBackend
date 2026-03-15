@@ -1,5 +1,5 @@
-import type { AuthenticationRepository } from "repositories/auth";
-import type { UserRepository } from "repositories/users";
+import { AuthenticationRepository } from "repositories/auth";
+import { UserRepository } from "repositories/users";
 import type { AuthenticationInsert } from "schemas/authentication";
 import { UserFromRow, type UserLogin, type UserRegister } from "schemas/user";
 import { authentication, random } from "utils/authentication";
@@ -7,7 +7,14 @@ import { HttpError } from "utils/errorHandler";
 import jwt from "jsonwebtoken";
 
 export class AuthenticationService {
-  constructor(private authRepository: AuthenticationRepository, private userRepository: UserRepository) {}
+
+  private authRepository: AuthenticationRepository;
+  private userRepository: UserRepository;
+
+  constructor(authRepository?: AuthenticationRepository, userRepository?: UserRepository) {
+    this.authRepository = authRepository ?? new AuthenticationRepository()
+    this.userRepository = userRepository ?? new UserRepository();
+  }
 
   async register(data: UserRegister) {
     const { user, password } = data

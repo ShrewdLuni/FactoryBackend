@@ -1,11 +1,15 @@
-import { getUserController, getUsersController, updateUserController } from "controllers/users";
+import { UserController } from "controllers_new/users";
 import express from "express";
 import { authenticate } from "middleware/auth";
+import { UserRepository } from "repositories/users";
+import { UserService } from "services_new/users";
 
 const router = express.Router();
 
-router.get('/', getUsersController)
-router.get('/:id', getUserController)
-router.put('/:id', authenticate, updateUserController)
+const controller = new UserController(new UserService(new UserRepository()));
+
+router.get("/", controller.findMany);
+router.get("/:id", controller.find);
+router.put("/:id", authenticate, controller.update);
 
 export default router;

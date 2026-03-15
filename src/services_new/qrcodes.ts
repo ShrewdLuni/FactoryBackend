@@ -1,9 +1,14 @@
-import type { QRCodeRepository } from "repositories/qrCodes";
+import { QRCodeRepository } from "repositories/qrCodes";
 import type { QRCodeInitialize, QRCodeInsert, QRCodeLink } from "schemas/qrcode";
 import { HttpError } from "utils/errorHandler";
 
 export class QRCodeService {
-  constructor(private qrcodeRepository: QRCodeRepository) {}
+
+  private qrcodeRepository: QRCodeRepository;
+
+  constructor(qrcodeRepository?: QRCodeRepository) {
+    this.qrcodeRepository = qrcodeRepository ?? new QRCodeRepository();
+  }
 
   async findMany() {
     const qrcodes = await this.qrcodeRepository.findMany();
