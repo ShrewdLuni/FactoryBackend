@@ -59,7 +59,7 @@ export class AuthenticationService {
 
     if(expectedHash !== auth.hash) throw new HttpError(401, "Invalid credentials");
 
-    const token = jwt.sign({ userId: existingUser.id }, process.env.JWT_SECRET!, { expiresIn: "1h" });
+    const token = jwt.sign({ userId: existingUser.id }, process.env.JWT_SECRET!, { expiresIn: "16h" });
     return token;
   }
 
