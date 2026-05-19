@@ -4,7 +4,7 @@ import type { ZodType } from "zod";
 import type { Lookup, FieldMap, FieldValuePair, FieldDef } from "./types";
 
 export abstract class Repository<T, TRow extends QueryResultRow, TLookup extends Lookup, TInsert> {
-  protected tableName: string;
+  tableName: string;
   protected schema: ZodType<T>;
   protected columns: string[];
   private fieldMap: FieldMap<TInsert>;

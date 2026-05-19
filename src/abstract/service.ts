@@ -12,8 +12,9 @@ export abstract class Service<
     this.repository = repository;
   }
 
-  async find(id: number): Promise<T | null> {
+  async find(id: number): Promise<T> {
     const result = await this.repository.find({ id } as any);
+    if (!result) throw new Error(`${this.repository.tableName} ${id} not found`)
     return result;
   }
 
