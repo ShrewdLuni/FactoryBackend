@@ -16,4 +16,6 @@ router.put("/:id", controller.update);
 router.patch("/:id", controller.patch);
 router.delete("/:id", controller.delete);
 
+router.get("/:id/scan", controller.scan);
+
 export default router;

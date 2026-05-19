@@ -12,7 +12,7 @@ const mapped = {
   isActive: z.boolean().default(true),
 };
 
-export const QRCodeSchema = z.object({ ...shared, ...mapped });
+export const QRCodeSchema = z.object({ ...shared, ...mapped }).meta({ id: "QRCode" });
 
 export const QRCodeRowSchema = z.object({
   ...shared,
