@@ -3,6 +3,6 @@ import { AuthFromRow, type Auth, type AuthInsert, type AuthLookup, type AuthRow 
 
 export class AuthRepository extends Repository<Auth, AuthRow, AuthLookup, AuthInsert> {
   constructor() {
-    super("auth", AuthFromRow, { user: { column: "user_id", extract: (d) => d.user.id }, hash: "hash", salt: "salt" })
+    super("authentication", AuthFromRow, { user: { column: "user_id", extract: (d) => d.user.id }, hash: "hash", salt: "salt" })
   }
 }

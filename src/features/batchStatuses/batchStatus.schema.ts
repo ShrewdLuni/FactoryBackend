@@ -17,7 +17,7 @@ const mapped = {
   isPackaging: z.boolean().default(false),
 };
 
-export const BatchStatusSchema = z.object({ ...shared, ...mapped });
+export const BatchStatusSchema = z.object({ ...shared, ...mapped }).meta({ id: "BatchStatus" });
 
 export const BatchStatusRowSchema = z.object({
   ...shared,

@@ -12,7 +12,7 @@ const relations = {
   }),
 };
 
-export const AuthSchema = z.object({ ...shared, ...relations });
+export const AuthSchema = z.object({ ...shared, ...relations }).meta({ id: "Auth" });;
 
 export const AuthRowSchema = z.object({
   ...shared,

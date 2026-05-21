@@ -20,7 +20,7 @@ const relations = {
   })
 }
 
-export const ProductSchema = z.object({ ...shared, ...mapped, ...relations });
+export const ProductSchema = z.object({ ...shared, ...mapped, ...relations }).meta({ id: "Product" });
 
 export const ProductRowSchema = z.object({
   ...shared,

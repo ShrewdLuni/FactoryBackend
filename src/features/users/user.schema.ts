@@ -33,7 +33,7 @@ const relations = {
   }),
 }
 
-export const UserSchema = z.object({ ...shared, ...mapped, ...relations });
+export const UserSchema = z.object({ ...shared, ...mapped, ...relations }).meta({ id: "User" });
 
 export const UserRowSchema = z.object({
   ...shared,

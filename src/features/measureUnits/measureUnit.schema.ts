@@ -10,7 +10,7 @@ const mapped = {
   isActive: z.boolean().default(true),
 };
 
-export const MeasureUnitSchema = z.object({ ...shared, ...mapped });
+export const MeasureUnitSchema = z.object({ ...shared, ...mapped }).meta({ id: "MeasureUnit" });
 
 export const MeasureUnitRowSchema = z.object({
   ...shared,

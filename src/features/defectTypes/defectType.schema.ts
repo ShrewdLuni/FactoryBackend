@@ -14,7 +14,7 @@ const mapped = {
   isActive: z.boolean().default(true),
 };
 
-export const DefectTypeSchema = z.object({ ...shared, ...mapped });
+export const DefectTypeSchema = z.object({ ...shared, ...mapped }).meta({ id: "DefectType" });
 
 export const DefectTypeRowSchema = z.object({
   ...shared,

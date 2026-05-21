@@ -11,7 +11,7 @@ const mapped = {
   isActive: z.boolean().default(true),
 };
 
-export const RoleSchema = z.object({ ...shared, ...mapped });
+export const RoleSchema = z.object({ ...shared, ...mapped }).meta({ id: "Role" });
 
 export const RoleRowSchema = z.object({
   ...shared,

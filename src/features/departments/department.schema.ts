@@ -10,7 +10,7 @@ const mapped = {
   isActive: z.boolean().default(false),
 };
 
-export const DepartmentSchema = z.object({ ...shared, ...mapped });
+export const DepartmentSchema = z.object({ ...shared, ...mapped }).meta({ id: "Department" });
 
 export const DepartmentRowSchema = z.object({
   ...shared,
