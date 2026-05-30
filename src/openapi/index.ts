@@ -5,8 +5,8 @@ import { RoleSchema, RoleInsertSchema } from "features/roles/role.schema";
 import { DepartmentSchema, DepartmentInsertSchema } from "features/departments/department.schema";
 import { WorkstationSchema, WorkstationInsertSchema } from "features/workstations/workstation.schema"
 import { MeasureUnitSchema, MeasureUnitInsertSchema } from  "features/measureUnits/measureUnit.schema"
-import { BatchStatusInsertSchema, BatchStatusSchema } from "schemas/batchStatuses";
-import { DefectTypeSchema, DefetTypeInsertSchema } from "schemas/defectTypes";
+import { BatchStatusInsertSchema, BatchStatusSchema } from "features/batchStatuses/batchStatus.schema";
+import { DefectTypeSchema, DefectTypeInsertSchema } from "features/defectTypes/defectType.schema"
 import { DeviceInsertSchema, DeviceSchema } from "features/devices/devices.schema";
 import { PackedStockInsertSchema, PackedStockSchema } from "features/packedStock/packedStock.schema";
 import { ProductInsertSchema, ProductSchema } from "features/products/product.schema";
@@ -21,16 +21,16 @@ export function generateOpenApiDoc() {
     info: { title: "API", version: "1.0.0" },
     servers: [{ url: "/" }],
     paths: {
-      ...buildCrudPaths({ resource: "batchStatuses", tag: "BatchStatus", entitySchema: BatchStatusSchema, insertSchema: BatchStatusInsertSchema }),
+      ...buildCrudPaths({ resource: "batchStatuses", tag: "BatchStatus", pluralTag: "BatchStatuses", entitySchema: BatchStatusSchema, insertSchema: BatchStatusInsertSchema }),
       // ...buildCrudPaths({ resource: "batchStatuses", tag: "BatchStatus", entitySchema: BatchStatusSchema, insertSchema: BatchStatusInsertSchema }),
       // ...buildCrudPaths({ resource: "batchStatuses", tag: "BatchStatus", entitySchema: BatchStatusSchema, insertSchema: BatchStatusInsertSchema }),
-      ...buildCrudPaths({ resource: "batches", tag: "Batch", entitySchema: BatchSchema, insertSchema: BatchInsertSchema }),
-      ...buildCrudPaths({ resource: "defectTypes", tag: "DefectType", entitySchema: DefectTypeSchema, insertSchema: DefetTypeInsertSchema }),
+      ...buildCrudPaths({ resource: "batches", tag: "Batch", pluralTag: "Batches", entitySchema: BatchSchema, insertSchema: BatchInsertSchema }),
+      ...buildCrudPaths({ resource: "defectTypes", tag: "DefectType", entitySchema: DefectTypeSchema, insertSchema: DefectTypeInsertSchema }),
       ...buildCrudPaths({ resource: "defects", tag: "Defect", entitySchema: DefectSchema, insertSchema: DefectInsertSchema }),
       ...buildCrudPaths({ resource: "departments", tag: "Department", entitySchema: DepartmentSchema, insertSchema: DepartmentInsertSchema }),
       ...buildCrudPaths({ resource: "devices", tag: "Device", entitySchema: DeviceSchema, insertSchema: DeviceInsertSchema }),
       ...buildCrudPaths({ resource: "measureUnits", tag: "MeasureUnit", entitySchema: MeasureUnitSchema, insertSchema: MeasureUnitInsertSchema }),
-      ...buildCrudPaths({ resource: "packedStock", tag: "PackedStock", entitySchema: PackedStockSchema, insertSchema: PackedStockInsertSchema }),
+      ...buildCrudPaths({ resource: "packedStock", tag: "PackedStock", pluralTag: "PackedStock", entitySchema: PackedStockSchema, insertSchema: PackedStockInsertSchema }),
       ...buildCrudPaths({ resource: "products", tag: "Product", entitySchema: ProductSchema, insertSchema: ProductInsertSchema }),
       ...buildCrudPaths({ resource: "qrcodes", tag: "qrcode", entitySchema: QRCodeSchema, insertSchema: QRCodeInsertSchema }),
       ...buildCrudPaths({ resource: "roles", tag: "Role", entitySchema: RoleSchema, insertSchema: RoleInsertSchema }),

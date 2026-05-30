@@ -21,7 +21,7 @@ export const BatchWorkerSchema = z.object({
 const shared = {
   id: DbId,
   name: z.string().nullish(), 
-  size: z.int().positive().nullish(),
+  size: z.int().min(0).nullish(),
 }
 
 const mapped = {
@@ -31,7 +31,7 @@ const mapped = {
 
 const relations = {
   product: z.object({
-    id: ProductSchema.shape.id,
+    id: ProductSchema.shape.id.nullish(),
     name: ProductSchema.shape.name.nullish(),
   }),
   workstation: z.object({
