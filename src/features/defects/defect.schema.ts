@@ -55,7 +55,7 @@ export const DefectRowSchema = z.object({
   batch_id: relations.batch.shape.id,
 });
 
-export const DefectInsertSchema = DefectSchema.omit({ id: true });
+export const DefectInsertSchema = DefectSchema.omit({ id: true }).meta({ id: "DefectInsert" });
 
 export const DefectFromRow = DefectRowSchema.transform((row) => {
   const { 

@@ -25,7 +25,7 @@ export const MeasureUnitFromRow = MeasureUnitRowSchema.transform((row) => {
   };
 });
 
-export const MeasureUnitInsertSchema = MeasureUnitSchema.omit({ id: true }).partial({ isActive: true });
+export const MeasureUnitInsertSchema = MeasureUnitSchema.omit({ id: true }).partial({ isActive: true }).meta({ id: "MeasureUnitInsert" });
 
 export const MeasureUnitLookupSchema = z.union([z.object({ id: z.number().positive() })]);
 

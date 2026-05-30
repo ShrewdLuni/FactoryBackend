@@ -17,7 +17,7 @@ export const DepartmentRowSchema = z.object({
   is_active: mapped.isActive,
 });
 
-export const DepartmentInsertSchema = DepartmentSchema.omit({ id: true }).partial({ isActive: true });
+export const DepartmentInsertSchema = DepartmentSchema.omit({ id: true }).partial({ isActive: true }).meta({ id: "DepartmentInsert" });
 
 export const DepartmentFromRow = DepartmentRowSchema.transform((row) => {
   const { is_active, ...rest } = row;

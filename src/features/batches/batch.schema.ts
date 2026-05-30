@@ -53,7 +53,7 @@ const relations = {
   }),
 }
 
-export const BatchSchema = z.object({ ...mapped, ...shared, ...relations }); 
+export const BatchSchema = z.object({ ...mapped, ...shared, ...relations }).meta({ id: "Batch" }); 
 
 export const BatchRowSchema = z.object({
   ...shared,
@@ -75,7 +75,7 @@ export const BatchRowSchema = z.object({
   is_active: mapped.isActive,
 })
 
-export const BatchInsertSchema = BatchSchema.omit({ id: true, workers: true })
+export const BatchInsertSchema = BatchSchema.omit({ id: true, workers: true }).meta({ id: "BatchInsert" })
 
 export const BatchFromRow = BatchRowSchema.transform((row): Batch => ({
   id: row.id,

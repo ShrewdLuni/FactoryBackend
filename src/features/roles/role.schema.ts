@@ -28,7 +28,7 @@ export const RoleFromRow = RoleRowSchema.transform((row) => {
   };
 });
 
-export const RoleInsertSchema = RoleSchema.omit({ id: true }).partial({ isActive: true, canOverrideWorkflow: true });
+export const RoleInsertSchema = RoleSchema.omit({ id: true }).partial({ isActive: true, canOverrideWorkflow: true }).meta({id: "RoleInsert" });
 
 export const RoleLookupSchema = z.union([
   z.object({ id: z.number().positive() })

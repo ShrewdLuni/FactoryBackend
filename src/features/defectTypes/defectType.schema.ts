@@ -32,7 +32,7 @@ export const DefectTypeFromRow = DefectTypeRowSchema.transform((row) => {
   };
 });
 
-export const DefectTypeInsertSchema = DefectTypeSchema.omit({ id: true }).partial({ isActive: true });
+export const DefectTypeInsertSchema = DefectTypeSchema.omit({ id: true }).partial({ isActive: true }).meta({ id: "DefectTypeInsert" });
 
 export const DefectTypeLookupSchema = z.union([z.object({ id: z.number().positive() })]);
 

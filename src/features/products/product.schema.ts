@@ -17,7 +17,7 @@ const relations = {
     id: MeasureUnitSchema.shape.id,
     label: MeasureUnitSchema.shape.label.nullish(),
     isActive: MeasureUnitSchema.shape.isActive.nullish(),
-  })
+  }),
 }
 
 export const ProductSchema = z.object({ ...shared, ...mapped, ...relations }).meta({ id: "Product" });
@@ -43,7 +43,7 @@ export const ProductFromRow = ProductRowSchema.transform((db) => {
   };
 });
 
-export const ProductInsertSchema = ProductSchema.omit({ id: true }).partial({ isActive: true });
+export const ProductInsertSchema = ProductSchema.omit({ id: true }).partial({ isActive: true }).meta({id: "ProductInsert" });
 
 export const ProductLookupSchema = z.union([
   z.object({ id: z.number().positive() }),

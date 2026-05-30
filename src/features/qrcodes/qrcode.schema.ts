@@ -29,7 +29,7 @@ export const QRCodeFromRow = QRCodeRowSchema.transform((db) => {
   };
 });
 
-export const QRCodeInsertSchema = QRCodeSchema.omit({ id: true, isTaken: true }).partial({ isActive: true });
+export const QRCodeInsertSchema = QRCodeSchema.omit({ id: true, isTaken: true }).partial({ isActive: true }).meta({ id: "QRCodeInsert" });
 
 export const QRCodeLookupSchema = z.union([
   z.object({ id: z.number().positive() })

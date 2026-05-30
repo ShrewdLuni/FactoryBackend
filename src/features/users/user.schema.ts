@@ -88,7 +88,8 @@ export const UserInsertSchema = UserSchema
   .partial({ isActive: true, patronymic: true, gender: true })
   .extend({
     departmentIds: DbId.array().nullish().default([])
-  });
+  })
+  .meta({ id: "UserInsert" });
 
 export type User = z.infer<typeof UserSchema>
 export type UserRow = z.infer<typeof UserRowSchema>

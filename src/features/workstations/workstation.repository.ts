@@ -3,6 +3,6 @@ import { WorkstationFromRow, type Workstation, type WorkstationInsert, type Work
 
 export class WorkstationRepository extends Repository<Workstation, WorkstationRow, WorkstationLookup, WorkstationInsert> {
   constructor() {
-    super("workstations", WorkstationFromRow, { name: "name", qrcode: { column: 'qr_code_id', extract: (d) => d.qrcode.id }, isActive: "is_active" })
+    super("workstations", WorkstationFromRow, { name: "name", isActive: "is_active" })
   }
 }

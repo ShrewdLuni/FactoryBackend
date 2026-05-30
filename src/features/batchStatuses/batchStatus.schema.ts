@@ -56,7 +56,7 @@ export const BatchStatusFromRow = BatchStatusRowSchema.transform((row) => {
   };
 });
 
-export const BatchStatusInsertSchema = BatchStatusSchema.omit({ id: true }).partial({ isActive: true });
+export const BatchStatusInsertSchema = BatchStatusSchema.omit({ id: true }).partial({ isActive: true }).meta({ id: "BatchStatusInsert" });
 
 export const BatchStatusLookupSchema = z.union([z.object({ id: z.number().positive() })]);
 

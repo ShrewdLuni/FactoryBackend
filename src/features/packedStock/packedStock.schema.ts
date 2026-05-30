@@ -36,7 +36,7 @@ export const PackedStockFromRow = PackedStockRowSchema.transform((row) => {
   };
 });
 
-export const PackedStockInsertSchema = PackedStockSchema.omit({ id: true })
+export const PackedStockInsertSchema = PackedStockSchema.omit({ id: true }).meta({ id:"PackedStockInsert" })
 
 export const PackedStockLookupSchema = z.union([
   z.object({ id: z.number().positive() })

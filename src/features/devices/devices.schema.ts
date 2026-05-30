@@ -43,7 +43,7 @@ export const DeviceFromRow = DeviceRowSchema.transform((row) => {
   };
 });
 
-export const DeviceInsertSchema = DeviceSchema.omit({ id: true }).partial({ isActive: true, capacity: true });
+export const DeviceInsertSchema = DeviceSchema.omit({ id: true }).partial({ isActive: true, capacity: true }).meta({ id: "DeviceInsert" });
 
 export const DeviceLookupSchema = z.union([
   z.object({ id: z.number().positive() })
