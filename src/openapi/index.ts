@@ -24,7 +24,7 @@ export function generateOpenApiDoc() {
       ...buildCrudPaths({ resource: "batchStatuses", tag: "BatchStatus", pluralTag: "BatchStatuses", entitySchema: BatchStatusSchema, insertSchema: BatchStatusInsertSchema }),
       // ...buildCrudPaths({ resource: "batchStatuses", tag: "BatchStatus", entitySchema: BatchStatusSchema, insertSchema: BatchStatusInsertSchema }),
       // ...buildCrudPaths({ resource: "batchStatuses", tag: "BatchStatus", entitySchema: BatchStatusSchema, insertSchema: BatchStatusInsertSchema }),
-      ...buildCrudPaths({ resource: "batches", tag: "Batch", pluralTag: "Batches", entitySchema: BatchSchema, insertSchema: BatchInsertSchema }),
+      ...buildCrudPaths({ resource: "batches", tag: "Batch", pluralTag: "Batches", entitySchema: BatchSchema, insertSchema: BatchInsertSchema  }),
       ...buildCrudPaths({ resource: "defectTypes", tag: "DefectType", entitySchema: DefectTypeSchema, insertSchema: DefectTypeInsertSchema }),
       ...buildCrudPaths({ resource: "defects", tag: "Defect", entitySchema: DefectSchema, insertSchema: DefectInsertSchema }),
       ...buildCrudPaths({ resource: "departments", tag: "Department", entitySchema: DepartmentSchema, insertSchema: DepartmentInsertSchema }),

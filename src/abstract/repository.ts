@@ -77,12 +77,13 @@ export abstract class Repository<T, TRow extends QueryResultRow, TLookup extends
 
   async create(data: TInsert): Promise<T> {
     const queryText = `INSERT INTO ${this.tableName} (${this.columns.join(", ")}) VALUES (${this.placeholders()}) RETURNING *`;
+    console.log(this.toValues(data))
     const result = await query<TRow>(queryText, this.toValues(data));
     return this.schema.parse(result.rows[0]);
   }
 
   async createMany(data: TInsert[]): Promise<T[]> {
-    const queryText = `INSERT INTO ${this.tableName} (${this.columns.join(", ")}) VALUES(${this.multiRowPlaceholders(data.length)}) RETURNING *`;
+    const queryText = `INSERT INTO ${this.tableName} (${this.columns.join(", ")}) VALUES ${this.multiRowPlaceholders(data.length)} RETURNING *`;
     const result = await query<TRow>(
       queryText,
       data.flatMap((item) => this.toValues(item)),

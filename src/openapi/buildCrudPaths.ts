@@ -46,7 +46,7 @@ export function buildCrudPaths(opts: {
     entitySchema,
     insertSchema,
     updateSchema = insertSchema,
-    patchSchema = insertSchema.partial(),
+    patchSchema = insertSchema.partial().meta({ id: `${tag}Patch` }),
     include,
     exclude = [],
     extra = {},

@@ -35,7 +35,7 @@ const relations = {
     name: ProductSchema.shape.name.nullish(),
   }),
   workstation: z.object({
-    id: WorkstationSchema.shape.id,
+    id: WorkstationSchema.shape.id.nullish(),
     name: WorkstationSchema.shape.name.nullish(),
     isActive: WorkstationSchema.shape.isActive.nullish(),
   }),
@@ -75,7 +75,7 @@ export const BatchRowSchema = z.object({
   is_active: mapped.isActive,
 })
 
-export const BatchInsertSchema = BatchSchema.omit({ id: true, workers: true }).meta({ id: "BatchInsert" })
+export const BatchInsertSchema = BatchSchema.omit({ id: true, workers: true }).partial({ product: true, workstation: true, status: true }).meta({ id: "BatchInsert" });
 
 export const BatchFromRow = BatchRowSchema.transform((row): Batch => ({
   id: row.id,

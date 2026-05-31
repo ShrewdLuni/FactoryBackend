@@ -13,6 +13,10 @@ export abstract class Controller<T, TInsert, TService extends Service<T, TInsert
     this.insertSchema = insertSchema;
   }
 
+  private getPatchSchema(): ZodType<Partial<TInsert>> {
+    return (this.insertSchema as unknown as { partial(): ZodType<Partial<TInsert>> }).partial();
+  }
+
   find = asyncHandler(async (req: express.Request, res: express.Response) => {
     const { id } = paramsSchema.parse(req.params);
     const result = await this.service.find(id);
@@ -25,7 +29,9 @@ export abstract class Controller<T, TInsert, TService extends Service<T, TInsert
   });
 
   create = asyncHandler(async (req: express.Request, res: express.Response) => {
+    console.log(req.body)
     const data = this.insertSchema.parse(req.body);
+    console.log(data)
     const result = await this.service.create(data);
     res.status(200).json(result);
   });
@@ -52,7 +58,8 @@ export abstract class Controller<T, TInsert, TService extends Service<T, TInsert
 
   patch = asyncHandler(async (req: express.Request, res: express.Response) => {
     const { id } = paramsSchema.parse(req.params);
-    const data = this.insertSchema.parse(req.body);
+    const data = this.getPatchSchema().parse(req.body);
+    console.log(data)
     const result = await this.service.patch(id, data);
     res.status(200).json(result);
   });
