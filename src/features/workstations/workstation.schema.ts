@@ -48,7 +48,7 @@ export const WorkstationFromRow = WorkstationRowSchema.transform((row) => {
   };
 });
 
-export const WorkstationInsertSchema = WorkstationSchema.omit({ id: true, qrcode: true }).meta({ id: "WOrkstationInsert" });
+export const WorkstationInsertSchema = WorkstationSchema.omit({ id: true, qrcode: true }).meta({ id: "WorkstationInsert" });
 
 export const WorkstationLookupSchema = z.union([z.object({ id: z.number().positive() })]);
 

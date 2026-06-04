@@ -2,6 +2,13 @@ import { z } from "zod";
 import type { ZodOpenApiPathsObject, ZodOpenApiOperationObject } from "zod-openapi";
 import { bulkOperationSchema } from "schemas/utils";
 
+const bulkPatchBody = (schema: z.ZodObject<any>, id: string) =>
+  z.object({
+    ids: bulkOperationSchema.shape.ids,
+    data: schema,
+  }).meta({ id });
+
+
 export type CrudOperation =
   | "get"
   | "getAll"
@@ -99,7 +106,9 @@ export function buildCrudPaths(opts: {
       {
         tags: [tag],
         operationId: `update${pluralTag}`,
-        requestBody: { content: { "application/json": { schema: bulkOperationSchema.merge(updateSchema) } } },
+        requestBody: {
+          content: { "application/json": { schema: bulkPatchBody(updateSchema, `${tag}BulkUpdate`) } },
+        },
         responses: ok(entitySchema.array()),
       },
     ],
@@ -110,7 +119,9 @@ export function buildCrudPaths(opts: {
       {
         tags: [tag],
         operationId: `patch${pluralTag}`,
-        requestBody: { content: { "application/json": { schema: bulkOperationSchema.merge(patchSchema) } } },
+        requestBody: {
+          content: { "application/json": { schema: bulkPatchBody(patchSchema, `${tag}BulkPatch`) } },
+        },
         responses: ok(entitySchema.array()),
       },
     ],
