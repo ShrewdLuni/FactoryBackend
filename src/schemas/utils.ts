@@ -24,3 +24,10 @@ export const paramsSchema = z.object({
 export const bulkOperationSchema = z.object({
   ids: z.array(z.int().positive()).min(1)
 })
+
+export const bulkPatchSchema = <T extends z.ZodTypeAny>(schema: T) =>
+  z.object({
+    ids: bulkOperationSchema.shape.ids,
+    data: schema,
+  });
+

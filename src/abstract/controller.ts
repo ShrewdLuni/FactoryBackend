@@ -1,6 +1,6 @@
 import { asyncHandler } from "utils/errorHandler";
 import type express from "express";
-import { bulkOperationSchema, paramsSchema } from "schemas/utils";
+import { bulkOperationSchema, bulkPatchSchema, paramsSchema } from "schemas/utils";
 import type { Service } from "./service";
 import type { ZodType } from "zod";
 
@@ -50,8 +50,7 @@ export abstract class Controller<T, TInsert, TService extends Service<T, TInsert
   });
 
   updateMany = asyncHandler(async (req: express.Request, res: express.Response) => {
-    const { ids } = bulkOperationSchema.parse(req.body);
-    const data = this.insertSchema.parse(req.body);
+    const { ids, data } = bulkPatchSchema(this.insertSchema).parse(req.body);
     const result = await this.service.updateMany(ids, data);
     res.status(200).json(result);
   });
@@ -59,14 +58,12 @@ export abstract class Controller<T, TInsert, TService extends Service<T, TInsert
   patch = asyncHandler(async (req: express.Request, res: express.Response) => {
     const { id } = paramsSchema.parse(req.params);
     const data = this.getPatchSchema().parse(req.body);
-    console.log(data)
     const result = await this.service.patch(id, data);
     res.status(200).json(result);
   });
 
   patchMany = asyncHandler(async (req: express.Request, res: express.Response) => {
-    const { ids } = bulkOperationSchema.parse(req.body);
-    const data = this.insertSchema.parse(req.body);
+    const { ids, data } = bulkPatchSchema(this.getPatchSchema()).parse(req.body);
     const result = await this.service.patchMany(ids, data);
     res.status(200).json(result);
   });
