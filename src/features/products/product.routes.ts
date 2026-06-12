@@ -11,6 +11,9 @@ router.post("/bulk", controller.createMany);
 router.post("/bulk/update", controller.updateMany);
 router.post("/bulk/patch", controller.patchMany);
 router.post("/bulk/delete", controller.deleteMany);
+
+router.get('/quantities', controller.findQuantities)
+
 router.get("/:id", controller.find);
 router.put("/:id", controller.update);
 router.patch("/:id", controller.patch);

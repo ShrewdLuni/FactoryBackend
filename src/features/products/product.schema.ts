@@ -43,7 +43,7 @@ export const ProductFromRow = ProductRowSchema.transform((db) => {
   };
 });
 
-export const ProductInsertSchema = ProductSchema.omit({ id: true }).partial({ isActive: true }).meta({id: "ProductInsert" });
+export const ProductInsertSchema = ProductSchema.omit({ id: true }).partial({ measureUnit: true, isActive: true }).meta({id: "ProductInsert" });
 
 export const ProductLookupSchema = z.union([
   z.object({ id: z.number().positive() }),
