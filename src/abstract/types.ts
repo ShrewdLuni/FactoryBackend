@@ -13,5 +13,7 @@ export type BaseRepository<
 export type FieldValuePair = { field: string; value: unknown };
 
 export type FieldDef<TInsert> = string | { column: string; extract: (data: TInsert) => unknown }
-
 export type FieldMap<TInsert> = {[K in keyof TInsert & string]: FieldDef<TInsert>}
+
+export type LookupDef = string | { column: string; extract: (value: unknown) => unknown };
+export type LookupMap<TLookup> = { [K in keyof TLookup]?: LookupDef };

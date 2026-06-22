@@ -1,19 +1,21 @@
 import { query } from "db";
 import type { QueryResultRow } from "pg";
 import type { ZodType } from "zod";
-import type { Lookup, FieldMap, FieldValuePair, FieldDef } from "./types";
+import type { Lookup, FieldMap, FieldValuePair, FieldDef, LookupMap } from "./types";
 
 export abstract class Repository<T, TRow extends QueryResultRow, TLookup extends Lookup, TInsert> {
   tableName: string;
   protected schema: ZodType<T>;
   protected columns: string[];
   private fieldMap: FieldMap<TInsert>;
+  private lookupMap: LookupMap<TLookup>;
   private keys: (keyof TInsert & string)[];
 
-  constructor(tableName: string, schema: ZodType<T>, fieldMap: FieldMap<TInsert>) {
+  constructor(tableName: string, schema: ZodType<T>, fieldMap: FieldMap<TInsert>, lookupMap: LookupMap<TLookup> = {}) {
     this.tableName = tableName;
     this.schema = schema;
     this.fieldMap = fieldMap;
+    this.lookupMap = lookupMap;
     this.keys = Object.keys(fieldMap) as (keyof TInsert & string)[];
     this.columns = this.keys.map((k) => this.getColumn(fieldMap[k]));
   }
@@ -59,14 +61,17 @@ export abstract class Repository<T, TRow extends QueryResultRow, TLookup extends
   }
 
   async find(by: TLookup): Promise<T | null> {
-    const [field, value] = Object.entries(by)[0] ?? [];
-    if (!field || value === undefined) throw new Error("Invalid lookup");
+    const [key, value] = Object.entries(by)[0] ?? [];
+    if (!key || value === undefined) throw new Error("Invalid lookup");
 
-    const result = await query<TRow>(`SELECT * FROM ${this.tableName} WHERE ${field} = $1 LIMIT 1`, [value]);
-    const rows = result.rows;
+    const def = this.lookupMap[key as keyof TLookup];
+    if (!def) throw new Error(`No lookup mapping for "${key}"`);
 
-    if (!rows[0]) return null;
-    return this.schema.parse(rows[0]);
+    const column = typeof def === "string" ? def : def.column;
+    const param = typeof def === "string" ? value : def.extract(value);
+
+    const result = await query<TRow>(`SELECT * FROM ${this.tableName} WHERE ${column} = $1 LIMIT 1`, [param]);
+    return result.rows[0] ? this.schema.parse(result.rows[0]) : null;
   }
 
   async findMany(): Promise<T[]> {

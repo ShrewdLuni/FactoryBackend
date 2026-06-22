@@ -29,9 +29,7 @@ export abstract class Controller<T, TInsert, TService extends Service<T, TInsert
   });
 
   create = asyncHandler(async (req: express.Request, res: express.Response) => {
-    console.log(req.body)
     const data = this.insertSchema.parse(req.body);
-    console.log(data)
     const result = await this.service.create(data);
     res.status(200).json(result);
   });
