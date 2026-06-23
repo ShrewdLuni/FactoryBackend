@@ -33,7 +33,7 @@ const relations = {
   }),
 };
 
-export const DefectSchema = z.object({ ...shared, ...relations });
+export const DefectSchema = z.object({ ...shared, ...relations }).meta({ id: "Defect" });
 
 export const DefectRowSchema = z.object({
   ...shared,

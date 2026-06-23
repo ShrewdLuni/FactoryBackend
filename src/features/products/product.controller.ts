@@ -14,4 +14,8 @@ export class ProductController extends Controller<Product, ProductInsert, Produc
     res.status(200).json(result);
   });
 
+  findDefects = asyncHandler(async (_req: express.Request, res: express.Response) => {
+    const result = await this.service.findDefects();
+    res.status(200).json(result);
+  });
 }

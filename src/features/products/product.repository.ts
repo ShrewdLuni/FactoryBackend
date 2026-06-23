@@ -9,6 +9,7 @@ import {
 import { query } from "db";
 import { QuantitiesByStatusFromRow, type QuantitiesByStatus } from "schemas/productQuantities";
 import z from "zod";
+import { DefectsByProductFromRow, type DefectsByProduct, type DefectsByProductRow } from "schemas/defectQuantities";
 
 export class ProductRepository extends Repository<Product, ProductRow, ProductLookup, ProductInsert> {
   constructor() {
@@ -72,5 +73,31 @@ export class ProductRepository extends Repository<Product, ProductRow, ProductLo
 
     const result = await query(findQuery);
     return QuantitiesByStatusFromRow.array().parse(result.rows);
+  }
+
+  async findDefects(): Promise<DefectsByProduct[]> {
+    const result = await query<DefectsByProductRow>(`
+      SELECT
+        p.id AS product_id,
+        p.name AS product_name,
+        COALESCE(JSON_AGG(
+          JSON_BUILD_OBJECT(
+            'type', JSON_BUILD_OBJECT('id', dt.id, 'label', dt.label, 'category', dt.category),
+            'quantity', totals.total_quantity
+          )
+          ORDER BY dt.sort_order
+        ) FILTER (WHERE dt.id IS NOT NULL), '[]') AS defects
+      FROM products p
+      JOIN (
+        SELECT b.product_id, d.defect_type_id, SUM(d.quantity) AS total_quantity
+        FROM defects d
+        JOIN batches b ON b.id = d.batch_id
+        GROUP BY b.product_id, d.defect_type_id
+      ) totals ON totals.product_id = p.id
+      JOIN defect_types dt ON dt.id = totals.defect_type_id
+      GROUP BY p.id, p.name
+      ORDER BY p.name;
+    `);
+    return DefectsByProductFromRow.array().parse(result.rows);
   }
 }

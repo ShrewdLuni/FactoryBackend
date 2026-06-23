@@ -15,6 +15,7 @@ import { BatchInsertSchema, BatchSchema } from "features/batches/batch.schema";
 import { DefectInsertSchema, DefectSchema } from "features/defects/defect.schema";
 import { StorageEntryInsertSchema, StorageEntrySchema } from "features/storageEntries/storageEntry.schema";
 import { QuantitiesByStatusSchema } from "schemas/productQuantities";
+import { DefectsByProductSchema } from "schemas/defectQuantities";
 
 export function generateOpenApiDoc() {
   return createDocument({
@@ -93,11 +94,23 @@ export function generateOpenApiDoc() {
               },
             },
           },
+          "/products/defects": {
+            get: {
+              tags: ["Product"],
+              operationId: "getProductDefects",
+              responses: {
+                "200": {
+                  description: "OK",
+                  content: { "application/json": { schema: DefectsByProductSchema.array() } },
+                },
+              },
+            },
+          }
         },
       }),
       ...buildCrudPaths({
         resource: "qrcodes",
-        tag: "qrcode",
+        tag: "QRCode",
         entitySchema: QRCodeSchema,
         insertSchema: QRCodeInsertSchema,
       }),

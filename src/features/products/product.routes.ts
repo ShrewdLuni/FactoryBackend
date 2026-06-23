@@ -13,6 +13,7 @@ router.post("/bulk/patch", controller.patchMany);
 router.post("/bulk/delete", controller.deleteMany);
 
 router.get('/quantities', controller.findQuantities)
+router.get('/defects', controller.findDefects)
 
 router.get("/:id", controller.find);
 router.put("/:id", controller.update);
