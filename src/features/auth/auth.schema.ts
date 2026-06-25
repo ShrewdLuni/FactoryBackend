@@ -31,7 +31,9 @@ export const AuthFromRow = AuthRowSchema.transform((row) => {
 
 export const AuthInsertSchema = AuthSchema;
 
-export const AuthLookupSchema = z.union([z.object({ user_id: z.number().positive() })]);
+export const AuthLookupSchema = z.union([
+  z.object({ userId: z.number().positive() }),
+]);
 
 export type Auth = z.infer<typeof AuthSchema>;
 export type AuthRow = z.infer<typeof AuthRowSchema>;

@@ -42,7 +42,7 @@ export class AuthService extends Service<Auth, AuthInsert, AuthLookup, AuthRepos
 
     if (!existingUser) throw new HttpError(401, "User is not found")
 
-    const auth = await this.repository.find({ user_id: existingUser.id });
+    const auth = await this.repository.find({ userId: existingUser.id });
 
     if (!auth) throw new HttpError(401, "Auth is not found")
 
