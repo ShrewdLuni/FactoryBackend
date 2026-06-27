@@ -3,6 +3,8 @@ import { ProductInsertSchema, type Product, type ProductInsert } from "./product
 import { ProductService } from "./product.service";
 import express from "express";
 import { asyncHandler } from "utils/errorHandler";
+import { paramsSchema } from "schemas/utils";
+import { packRequestSchema } from "schemas/productPack";
 
 export class ProductController extends Controller<Product, ProductInsert, ProductService> {
   constructor(service: ProductService = new ProductService()) {
@@ -16,6 +18,13 @@ export class ProductController extends Controller<Product, ProductInsert, Produc
 
   findDefects = asyncHandler(async (_req: express.Request, res: express.Response) => {
     const result = await this.service.findDefects();
+    res.status(200).json(result);
+  });
+
+  packProduct = asyncHandler(async (req: express.Request, res: express.Response) => {
+    const { id } = paramsSchema.parse(req.params);
+    const data = packRequestSchema.parse(req.body);
+    const result = await this.service.packProduct(id, data.boxSize, data.quantity);
     res.status(200).json(result);
   });
 }

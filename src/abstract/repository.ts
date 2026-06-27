@@ -11,7 +11,7 @@ export abstract class Repository<T, TRow extends QueryResultRow, TLookup extends
   private lookupMap: LookupMap<TLookup>;
   private keys: (keyof TInsert & string)[];
 
-  constructor(tableName: string, schema: ZodType<T>, fieldMap: FieldMap<TInsert>, lookupMap: LookupMap<TLookup> = {}) {
+  constructor(tableName: string, schema: ZodType<T>, fieldMap: FieldMap<TInsert>, lookupMap: LookupMap<TLookup> = {id: "id"}) {
     this.tableName = tableName;
     this.schema = schema;
     this.fieldMap = fieldMap;

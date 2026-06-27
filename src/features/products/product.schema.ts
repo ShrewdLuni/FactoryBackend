@@ -6,6 +6,7 @@ const shared = {
   id: DbId,
   code: z.string(),
   name: z.string(),
+  quantity: z.int().min(0).default(0),
 };
 
 const mapped = {
@@ -18,7 +19,7 @@ const relations = {
     label: MeasureUnitSchema.shape.label.nullish(),
     isActive: MeasureUnitSchema.shape.isActive.nullish(),
   }),
-}
+};
 
 export const ProductSchema = z.object({ ...shared, ...mapped, ...relations }).meta({ id: "Product" });
 
@@ -43,12 +44,11 @@ export const ProductFromRow = ProductRowSchema.transform((db) => {
   };
 });
 
-export const ProductInsertSchema = ProductSchema.omit({ id: true }).partial({ measureUnit: true, isActive: true }).meta({id: "ProductInsert" });
+export const ProductInsertSchema = ProductSchema.omit({ id: true })
+  .partial({ measureUnit: true, isActive: true, quantity: true })
+  .meta({ id: "ProductInsert" });
 
-export const ProductLookupSchema = z.union([
-  z.object({ id: z.number().positive() }),
-  z.object({ code: z.string() })
-])
+export const ProductLookupSchema = z.union([z.object({ id: z.number().positive() }), z.object({ code: z.string() })]);
 
 export type Product = z.infer<typeof ProductSchema>;
 export type ProductRow = z.infer<typeof ProductRowSchema>;

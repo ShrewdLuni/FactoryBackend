@@ -23,16 +23,18 @@ export const StorageEntryRowSchema = z.object({
   ...shared,
   box_size: mapped.boxSize,
   product_id: relations.product.shape.id,
+  product_name: relations.product.shape.name
 });
 
 export const StorageEntryFromRow = StorageEntryRowSchema.transform((row) => {
-  const { box_size, product_id, ...rest } = row;
+  const { box_size, product_id, product_name, ...rest } = row;
   return {
     ...rest,
     boxSize: box_size,
     product: 
     { 
       id: product_id ,
+      name: product_name,
     },
   };
 });

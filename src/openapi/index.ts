@@ -16,6 +16,8 @@ import { DefectInsertSchema, DefectSchema } from "features/defects/defect.schema
 import { StorageEntryInsertSchema, StorageEntrySchema } from "features/storageEntries/storageEntry.schema";
 import { QuantitiesByStatusSchema } from "schemas/productQuantities";
 import { DefectsByProductSchema } from "schemas/defectQuantities";
+import { paramsSchema } from "schemas/utils";
+import { packRequestSchema } from "schemas/productPack";
 
 export function generateOpenApiDoc() {
   return createDocument({
@@ -105,7 +107,27 @@ export function generateOpenApiDoc() {
                 },
               },
             },
-          }
+          },
+          "/products/{id}/pack": {
+            post: {
+              tags: ["Product"],
+              operationId: "packProduct",
+              requestParams: {
+                path: paramsSchema,
+              },
+              requestBody: {
+                content: { "application/json": { schema: packRequestSchema } },
+              },
+              responses: {
+                "200": {
+                  description: "OK",
+                  content: { "application/json": { schema: StorageEntrySchema.array() } },
+                },
+                "404": { description: "Product or packed stock entry not found" },
+                "409": { description: "Insufficient packed stock" },
+              },
+            },
+          },
         },
       }),
       ...buildCrudPaths({

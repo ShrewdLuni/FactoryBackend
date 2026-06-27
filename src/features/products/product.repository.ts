@@ -21,6 +21,7 @@ export class ProductRepository extends Repository<Product, ProductRow, ProductLo
         extract: (d) => d.measureUnit.id,
       },
       isActive: "is_active",
+      quantity: "quantity",
     });
   }
 
