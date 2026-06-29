@@ -24,6 +24,9 @@ export class BatchStatusRepository extends Repository<
       isFinished: "is_finished",
       requiresSizeInput: "requires_size_input",
       isPackaging: "is_packaging",
+      subtractDefects: "subtract_defects",
+      isMilestone: "is_milestone",
+      departmentId: "department_id",
     });
   }
 }

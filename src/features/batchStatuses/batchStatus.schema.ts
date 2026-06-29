@@ -1,11 +1,11 @@
 import { z } from "zod";
 import { DbId } from "schemas/utils";
+import { DepartmentSchema } from "features/departments/department.schema";
 
 const shared = {
   id: DbId,
   label: z.string(),
 };
-
 const mapped = {
   sortOrder: z.int(),
   isTerminal: z.boolean().default(false),
@@ -15,9 +15,18 @@ const mapped = {
   isFinished: z.boolean().default(false),
   requiresSizeInput: z.boolean().default(false),
   isPackaging: z.boolean().default(false),
+  subtractDefects: z.boolean().default(true),
+  isMilestone: z.boolean().default(false),
 };
 
-export const BatchStatusSchema = z.object({ ...shared, ...mapped }).meta({ id: "BatchStatus" });
+const relations = {
+  department: z.object({
+    id: DepartmentSchema.shape.id,
+    label: DepartmentSchema.shape.label.nullish(),
+  }),
+};
+
+export const BatchStatusSchema = z.object({ ...shared, ...mapped, ...relations }).meta({ id: "BatchStatus" });
 
 export const BatchStatusRowSchema = z.object({
   ...shared,
@@ -29,6 +38,10 @@ export const BatchStatusRowSchema = z.object({
   is_finished: mapped.isFinished,
   requires_size_input: mapped.requiresSizeInput,
   is_packaging: mapped.isPackaging,
+  subtract_defects: mapped.subtractDefects,
+  is_milestone: mapped.isMilestone,
+  department_id: relations.department.shape.id.nullable(),
+  department_label: relations.department.shape.label.nullable(),
 });
 
 export const BatchStatusFromRow = BatchStatusRowSchema.transform((row) => {
@@ -41,6 +54,10 @@ export const BatchStatusFromRow = BatchStatusRowSchema.transform((row) => {
     is_finished,
     requires_size_input,
     is_packaging,
+    subtract_defects,
+    is_milestone,
+    department_id,
+    department_label,
     ...rest
   } = row;
   return {
@@ -53,10 +70,16 @@ export const BatchStatusFromRow = BatchStatusRowSchema.transform((row) => {
     isFinished: is_finished,
     requiresSizeInput: requires_size_input,
     isPackaging: is_packaging,
+    subtractDefects: subtract_defects,
+    isMilestone: is_milestone,
+    department: department_id ? { id: department_id, label: department_label as string } : null,
   };
 });
 
-export const BatchStatusInsertSchema = BatchStatusSchema.omit({ id: true }).partial({ isActive: true }).meta({ id: "BatchStatusInsert" });
+export const BatchStatusInsertSchema = BatchStatusSchema
+  .omit({ id: true })
+  .partial({ isActive: true, department: true })
+  .meta({ id: "BatchStatusInsert" });
 
 export const BatchStatusLookupSchema = z.union([z.object({ id: z.number().positive() })]);
 

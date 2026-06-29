@@ -14,6 +14,7 @@ const BatchStatusRelationSchema = z.object({
   isFinished: BatchStatusSchema.shape.isFinished,
   requiresSizeInput: BatchStatusSchema.shape.requiresSizeInput,
   isPackaging: BatchStatusSchema.shape.isPackaging,
+  subtractDefects: BatchStatusSchema.shape.subtractDefects,
 });
 
 const requiredDepartment = z.object({
@@ -52,6 +53,7 @@ export const StatusTransitionRowSchema = z.object({
   from_status_is_finished: BatchStatusSchema.shape.isFinished,
   from_status_requires_size_input: BatchStatusSchema.shape.requiresSizeInput,
   from_status_is_packaging: BatchStatusSchema.shape.isPackaging,
+  from_status_subtract_defects: BatchStatusSchema.shape.subtractDefects,
   to_status_id: BatchStatusSchema.shape.id,
   to_status_label: BatchStatusSchema.shape.label,
   to_status_is_terminal: BatchStatusSchema.shape.isTerminal,
@@ -61,6 +63,7 @@ export const StatusTransitionRowSchema = z.object({
   to_status_is_finished: BatchStatusSchema.shape.isFinished,
   to_status_requires_size_input: BatchStatusSchema.shape.requiresSizeInput,
   to_status_is_packaging: BatchStatusSchema.shape.isPackaging,
+  to_status_subtract_defects: BatchStatusSchema.shape.subtractDefects,
   required_department_id: DepartmentSchema.shape.id,
   required_department_label: DepartmentSchema.shape.label,
   required_role_id: RoleSchema.shape.id, 
@@ -78,6 +81,7 @@ export const StatusTransitionFromRow = StatusTransitionRowSchema.transform((row)
     from_status_is_finished,
     from_status_requires_size_input,
     from_status_is_packaging,
+    from_status_subtract_defects,
     to_status_id,
     to_status_label,
     to_status_is_terminal,
@@ -87,6 +91,7 @@ export const StatusTransitionFromRow = StatusTransitionRowSchema.transform((row)
     to_status_is_finished,
     to_status_requires_size_input,
     to_status_is_packaging,
+    to_status_subtract_defects,
     required_department_id,
     required_department_label,
     required_role_id,
@@ -105,6 +110,7 @@ export const StatusTransitionFromRow = StatusTransitionRowSchema.transform((row)
       isFinished: from_status_is_finished, 
       requiresSizeInput: from_status_requires_size_input, 
       isPackaging: from_status_is_packaging, 
+      subtractDefects: from_status_subtract_defects
     },
     toStatus: {
       id: to_status_id, 
@@ -116,6 +122,7 @@ export const StatusTransitionFromRow = StatusTransitionRowSchema.transform((row)
       isFinished: to_status_is_finished, 
       requiresSizeInput: to_status_requires_size_input, 
       isPackaging: to_status_is_packaging, 
+      subtractDefects: to_status_subtract_defects
     },
     required: {
       department: {
