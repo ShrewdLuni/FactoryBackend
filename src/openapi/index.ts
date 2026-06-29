@@ -16,6 +16,7 @@ import { DefectInsertSchema, DefectSchema } from "features/defects/defect.schema
 import { StorageEntryInsertSchema, StorageEntrySchema } from "features/storageEntries/storageEntry.schema";
 import { QuantitiesByStatusSchema } from "schemas/productQuantities";
 import { DefectsByProductSchema } from "schemas/defectQuantities";
+import { BatchTransitionSchema, BatchTransitionInsertSchema } from "features/batchTransitions/batchTransitions.schema";
 import { paramsSchema } from "schemas/utils";
 import { packRequestSchema } from "schemas/productPack";
 
@@ -34,6 +35,13 @@ export function generateOpenApiDoc() {
       }),
       // ...buildCrudPaths({ resource: "batchStatuses", tag: "BatchStatus", entitySchema: BatchStatusSchema, insertSchema: BatchStatusInsertSchema }),
       // ...buildCrudPaths({ resource: "batchStatuses", tag: "BatchStatus", entitySchema: BatchStatusSchema, insertSchema: BatchStatusInsertSchema }),
+      ...buildCrudPaths({
+        resource: "batchTransitions",
+        tag: "BatchTransition",
+        pluralTag: "BatchTransitions",
+        entitySchema: BatchTransitionSchema,
+        insertSchema: BatchTransitionInsertSchema,
+      }),
       ...buildCrudPaths({
         resource: "batches",
         tag: "Batch",
