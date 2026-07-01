@@ -18,7 +18,7 @@ export class BatchRepository extends Repository<Batch, BatchRow, BatchLookup, Ba
     super("batches", BatchFromRow, fieldMap);
   }
 
-  async findMany(): Promise<Batch[]> {
+  async findManyWithAll(): Promise<Batch[]> {
     const result = await query<BatchRow>(FIND_ALL_BATCHES_QUERY);
     return result.rows.map((row) => BatchFromRow.parse(row));
   }

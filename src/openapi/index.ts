@@ -48,6 +48,24 @@ export function generateOpenApiDoc() {
         pluralTag: "Batches",
         entitySchema: BatchSchema,
         insertSchema: BatchInsertSchema,
+        extra: {
+          "/batches/expanded": {
+            get: {
+              tags: ["Batch"],
+              operationId: "getAllBatchesWithAll",
+              responses: {
+                "200": {
+                  description: "OK",
+                  content: {
+                    "application/json": {
+                      schema: BatchSchema.array(),
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       }),
       ...buildCrudPaths({
         resource: "defectTypes",

@@ -82,7 +82,6 @@ export abstract class Repository<T, TRow extends QueryResultRow, TLookup extends
 
   async create(data: TInsert): Promise<T> {
     const queryText = `INSERT INTO ${this.tableName} (${this.columns.join(", ")}) VALUES (${this.placeholders()}) RETURNING *`;
-    console.log(this.toValues(data))
     const result = await query<TRow>(queryText, this.toValues(data));
     return this.schema.parse(result.rows[0]);
   }
@@ -118,7 +117,6 @@ export abstract class Repository<T, TRow extends QueryResultRow, TLookup extends
   async patch(id: number, data: Partial<TInsert>): Promise<T> {
     const pairs = this.toPartialFieldValues(data);
     if (pairs.length === 0) throw new Error("patch() called with no fields");
-
     const result = await query<TRow>(
       `UPDATE ${this.tableName} SET ${this.partialSetClause(pairs)} WHERE id = $1 RETURNING *`,
       [id, ...pairs.map(({ value }) => value)],
