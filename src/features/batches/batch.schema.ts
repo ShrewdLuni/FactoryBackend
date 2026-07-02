@@ -25,7 +25,7 @@ const CoworkerSchema = z.object({
 });
 
 const BatchStatusRelationSchema = z.object({
-  id: BatchStatusSchema.shape.id,
+  id: BatchStatusSchema.shape.id.default(1),
   label: BatchStatusSchema.shape.label.nullish(),
   isTerminal: BatchStatusSchema.shape.isTerminal.nullish(),
   sortOrder: BatchStatusSchema.shape.sortOrder.nullish(),
@@ -43,10 +43,15 @@ const BatchStatusRelationSchema = z.object({
   }),
 })
 
+const DefaultBatchStatusRelationSchema = BatchStatusRelationSchema.default({
+  id: 1,
+  department: {},
+});
+
 const shared = {
   id: DbId,
   name: z.string().nullish(), 
-  size: z.int().min(0),
+  size: z.int().min(0).nullable(),
 }
 
 const mapped = {
@@ -62,10 +67,13 @@ const relations = {
     id: WorkstationSchema.shape.id.nullish(),
     name: WorkstationSchema.shape.name.nullish(),
   }),
-  status: BatchStatusRelationSchema,
+  status: DefaultBatchStatusRelationSchema,
   transitions: z.object({
     id: BatchTransitionSchema.shape.id,
     occuredAt: BatchTransitionSchema.shape.occurredAt,
+    batch: z.object({
+      size: BatchTransitionSchema.shape.batch.shape.size,
+    }),
     device: z.object({ 
       id: BatchTransitionSchema.shape.device.shape.id ,
       name: BatchTransitionSchema.shape.device.shape.name 
@@ -88,20 +96,20 @@ export const BatchRowSchema = z.object({
   product_name: relations.product.shape.name,
   workstation_id: relations.workstation.shape.id,
   workstation_name: relations.workstation.shape.name,
-  status_id: relations.status.shape.id,
-  status_label: relations.status.shape.label,
-  status_sort_order: relations.status.shape.sortOrder,
-  status_is_terminal: relations.status.shape.isTerminal,
-  status_allows_defect_reporting: relations.status.shape.allowsDefectReporting,
-  status_is_active: relations.status.shape.isActive,
-  status_is_in_progress: relations.status.shape.isInProgress,
-  status_is_finished: relations.status.shape.isFinished,
-  status_requires_size_input: relations.status.shape.requiresSizeInput,
-  status_is_packaging: relations.status.shape.isPackaging,
-  status_subtract_defects: relations.status.shape.subtractDefects,
-  status_is_milestone: relations.status.shape.isMilestone,
-  status_department_id: relations.status.shape.department.shape.id.nullable(),
-  status_department_label: relations.status.shape.department.shape.label.nullable(),
+  status_id: BatchStatusRelationSchema.shape.id,
+  status_label: BatchStatusRelationSchema.shape.label,
+  status_sort_order: BatchStatusRelationSchema.shape.sortOrder,
+  status_is_terminal: BatchStatusRelationSchema.shape.isTerminal,
+  status_allows_defect_reporting: BatchStatusRelationSchema.shape.allowsDefectReporting,
+  status_is_active: BatchStatusRelationSchema.shape.isActive,
+  status_is_in_progress: BatchStatusRelationSchema.shape.isInProgress,
+  status_is_finished: BatchStatusRelationSchema.shape.isFinished,
+  status_requires_size_input: BatchStatusRelationSchema.shape.requiresSizeInput,
+  status_is_packaging: BatchStatusRelationSchema.shape.isPackaging,
+  status_subtract_defects: BatchStatusRelationSchema.shape.subtractDefects,
+  status_is_milestone: BatchStatusRelationSchema.shape.isMilestone,
+  status_department_id: BatchStatusRelationSchema.shape.department.shape.id.nullable(),
+  status_department_label: BatchStatusRelationSchema.shape.department.shape.label.nullable(),
   is_active: mapped.isActive,
   transitions: z.object({
     id: BatchTransitionSchema.shape.id,
@@ -114,35 +122,35 @@ export const BatchRowSchema = z.object({
     actor_id: BatchTransitionSchema.shape.actor.shape.id,
     actor_name: BatchTransitionSchema.shape.actor.shape.fullName,
 
-    from_status_id: relations.status.shape.id,
-    from_status_label: relations.status.shape.label,
-    from_status_sort_order: relations.status.shape.sortOrder,
-    from_status_is_terminal: relations.status.shape.isTerminal,
-    from_status_allows_defect_reporting: relations.status.shape.allowsDefectReporting,
-    from_status_is_active: relations.status.shape.isActive,
-    from_status_is_in_progress: relations.status.shape.isInProgress,
-    from_status_is_finished: relations.status.shape.isFinished,
-    from_status_requires_size_input: relations.status.shape.requiresSizeInput,
-    from_status_is_packaging: relations.status.shape.isPackaging,
-    from_status_subtract_defects: relations.status.shape.subtractDefects,
-    from_status_is_milestone: relations.status.shape.isMilestone,
-    from_status_department_id: relations.status.shape.department.shape.id.nullable(),
-    from_status_department_label: relations.status.shape.department.shape.label.nullable(),
+    from_status_id: BatchStatusRelationSchema.shape.id,
+    from_status_label: BatchStatusRelationSchema.shape.label,
+    from_status_sort_order: BatchStatusRelationSchema.shape.sortOrder,
+    from_status_is_terminal: BatchStatusRelationSchema.shape.isTerminal,
+    from_status_allows_defect_reporting: BatchStatusRelationSchema.shape.allowsDefectReporting,
+    from_status_is_active: BatchStatusRelationSchema.shape.isActive,
+    from_status_is_in_progress: BatchStatusRelationSchema.shape.isInProgress,
+    from_status_is_finished: BatchStatusRelationSchema.shape.isFinished,
+    from_status_requires_size_input: BatchStatusRelationSchema.shape.requiresSizeInput,
+    from_status_is_packaging: BatchStatusRelationSchema.shape.isPackaging,
+    from_status_subtract_defects: BatchStatusRelationSchema.shape.subtractDefects,
+    from_status_is_milestone: BatchStatusRelationSchema.shape.isMilestone,
+    from_status_department_id: BatchStatusRelationSchema.shape.department.shape.id.nullable(),
+    from_status_department_label: BatchStatusRelationSchema.shape.department.shape.label.nullable(),
 
-    to_status_id: relations.status.shape.id,
-    to_status_label: relations.status.shape.label,
-    to_status_sort_order: relations.status.shape.sortOrder,
-    to_status_is_terminal: relations.status.shape.isTerminal,
-    to_status_allows_defect_reporting: relations.status.shape.allowsDefectReporting,
-    to_status_is_active: relations.status.shape.isActive,
-    to_status_is_in_progress: relations.status.shape.isInProgress,
-    to_status_is_finished: relations.status.shape.isFinished,
-    to_status_requires_size_input: relations.status.shape.requiresSizeInput,
-    to_status_is_packaging: relations.status.shape.isPackaging,
-    to_status_subtract_defects: relations.status.shape.subtractDefects,
-    to_status_is_milestone: relations.status.shape.isMilestone,
-    to_status_department_id: relations.status.shape.department.shape.id.nullable(),
-    to_status_department_label: relations.status.shape.department.shape.label.nullable(),
+    to_status_id: BatchStatusRelationSchema.shape.id,
+    to_status_label: BatchStatusRelationSchema.shape.label,
+    to_status_sort_order: BatchStatusRelationSchema.shape.sortOrder,
+    to_status_is_terminal: BatchStatusRelationSchema.shape.isTerminal,
+    to_status_allows_defect_reporting: BatchStatusRelationSchema.shape.allowsDefectReporting,
+    to_status_is_active: BatchStatusRelationSchema.shape.isActive,
+    to_status_is_in_progress: BatchStatusRelationSchema.shape.isInProgress,
+    to_status_is_finished: BatchStatusRelationSchema.shape.isFinished,
+    to_status_requires_size_input: BatchStatusRelationSchema.shape.requiresSizeInput,
+    to_status_is_packaging: BatchStatusRelationSchema.shape.isPackaging,
+    to_status_subtract_defects: BatchStatusRelationSchema.shape.subtractDefects,
+    to_status_is_milestone: BatchStatusRelationSchema.shape.isMilestone,
+    to_status_department_id: BatchStatusRelationSchema.shape.department.shape.id.nullable(),
+    to_status_department_label: BatchStatusRelationSchema.shape.department.shape.label.nullable(),
 
     coworkers: z.object({
       id: UserSchema.shape.id,
@@ -151,7 +159,7 @@ export const BatchRowSchema = z.object({
   }).array().default([])
 })
 
-export const BatchInsertSchema = BatchSchema.omit({ id: true, transitions: true }).partial({ product: true, workstation: true, status: true, size: true }).meta({ id: "BatchInsert" });
+export const BatchInsertSchema = BatchSchema.omit({ id: true, transitions: true }).partial({ product: true, workstation: true, size: true, status: true }).meta({ id: "BatchInsert" });
 
 export const BatchFromRow = BatchRowSchema.transform((row): Batch => ({
   id: row.id,
@@ -187,6 +195,9 @@ export const BatchFromRow = BatchRowSchema.transform((row): Batch => ({
   transitions: row.transitions.map((t) => ({
     id: t.id,
     occuredAt: t.occurred_at,
+    batch: {
+      size: t.batch_size,
+    },
     device: {
       id: t.device_id,
       name: t.device_name,
