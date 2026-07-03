@@ -1,6 +1,7 @@
 import { Pool } from "pg"
 import dotenv from "dotenv"
-import type { PoolClient, QueryArrayConfig, QueryArrayResult, QueryConfig, QueryConfigValues, QueryResult, QueryResultRow, Submittable} from 'pg';
+import type { PoolClient, QueryArrayConfig, QueryArrayResult, QueryConfig, QueryConfigValues, QueryResult, QueryResultRow, Submittable } from 'pg';
+import { AsyncLocalStorage } from "node:async_hooks";
 
 dotenv.config()
 
@@ -11,6 +12,8 @@ export const pool = new Pool({
   password: process.env.DB_PASSWORD,
   port: parseInt(process.env.DB_PORT || "5433", 10),
 })
+
+const txContext = new AsyncLocalStorage<PoolClient>();
 
 export function query<T extends Submittable>(queryStream: T): T;
 
@@ -45,15 +48,19 @@ export function query<R extends QueryResultRow = any, I = any[]>(
 ): void;
 
 export function query(...args: any[]): any {
+  const executor = txContext.getStore() ?? pool;
   // @ts-ignore — TypeScript already knows overloads; runtime doesn't need typing.
-  return pool.query(...args);
+  return executor.query(...args);
 }
 
 export async function transaction<T>(fn: (client: PoolClient) => Promise<T>): Promise<T> {
+  const existing = txContext.getStore();
+  if (existing) return fn(existing);
+
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
-    const result = await fn(client);
+    const result = await txContext.run(client, () => fn(client));
     await client.query("COMMIT");
     return result;
   } catch (err) {
