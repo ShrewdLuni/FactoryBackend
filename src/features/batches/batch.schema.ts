@@ -6,6 +6,7 @@ import { DbId } from "schemas/utils";
 import { z } from "zod"; 
 import { BatchTransitionSchema } from "features/batchTransitions/batchTransitions.schema";
 import { UserSchema } from "schemas/user";
+import { DefectFromRow, DefectRowSchema, DefectSchema } from "features/defects/defect.schema";
 
 // export const BatchWorkerSchema = z.object({
 //   department: z.object({
@@ -84,7 +85,8 @@ const relations = {
     }),
     fromStatus: BatchStatusRelationSchema,
     toStatus: BatchStatusRelationSchema,
-    coworkers: CoworkerSchema.array().default([])
+    coworkers: CoworkerSchema.array().default([]),
+    defects: DefectSchema.array().default([])
   }).array().default([])
 }
 
@@ -155,7 +157,8 @@ export const BatchRowSchema = z.object({
     coworkers: z.object({
       id: UserSchema.shape.id,
       full_name: UserSchema.shape.fullName,
-    }).array().default([])
+    }).array().default([]),
+    defects: DefectRowSchema.array().default([])
   }).array().default([])
 })
 
@@ -243,7 +246,8 @@ export const BatchFromRow = BatchRowSchema.transform((row): Batch => ({
     coworkers: t.coworkers.map(c => ({
       id: c.id,
       fullName: c.full_name,
-    }))
+    })),
+    defects: t.defects.map((d) => DefectFromRow.parse(d)),
   }))
 }));
 

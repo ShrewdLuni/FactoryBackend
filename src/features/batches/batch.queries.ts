@@ -76,7 +76,8 @@ LEFT JOIN LATERAL (
       'to_status_department_id',                   ts.department_id,
       'to_status_department_label',                 tsd.label,
 
-      'coworkers', COALESCE(cw.coworkers, '[]'::json)
+      'coworkers', COALESCE(cw.coworkers, '[]'::json),
+      'defects',   COALESCE(dft.defects, '[]'::json)
     )
     ORDER BY bt.occurred_at DESC
   ) AS transitions
@@ -93,11 +94,27 @@ LEFT JOIN LATERAL (
     JOIN users u ON u.id = btc.worker_id
     WHERE btc.transition_id = bt.id
   ) cw ON true
+  LEFT JOIN LATERAL (
+    SELECT json_agg(
+      json_build_object(
+        'id',                    df.id,
+        'quantity',               df.quantity,
+        'transition_id',           df.transition_id,
+        'defect_type_id',          df.defect_type_id,
+        'defect_type_label',        dt.label,
+        'defect_type_category',      dt.category,
+        'defect_type_sort_order',     dt.sort_order,
+        'defect_type_is_active',       dt.is_active
+      )
+    ) AS defects
+    FROM defects df
+    JOIN defect_types dt ON dt.id = df.defect_type_id
+    WHERE df.transition_id = bt.id
+  ) dft ON true
   WHERE bt.batch_id = b.id
 ) t ON true
 ORDER BY b.id DESC;
 `;
-
 
 export const FIND_ACTIVE_BY_WORKER_QUERY = `
 SELECT b.*

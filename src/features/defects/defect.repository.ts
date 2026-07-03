@@ -5,9 +5,8 @@ export class DefectRepository extends Repository<Defect, DefectRow, DefectLookup
   constructor() {
     super("Defects", DefectFromRow, {
       quantity: "quantity",
-      batch: { column: "batch_id", extract: (d) => d.batch.id },
-      batchStatus: { column: "batch_status_id", extract: (d) => d.batchStatus.id },
-      defectType: { column: "defect_type_id", extract: (d) => d.defectType.id }
+      defectType: { column: "defect_type_id", extract: (d) => d.defectType.id },
+      transition: { column: "transition_id", extract: (d) => d.transition.id }
     });
   }
 }

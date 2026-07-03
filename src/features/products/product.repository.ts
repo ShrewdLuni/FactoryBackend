@@ -92,7 +92,8 @@ export class ProductRepository extends Repository<Product, ProductRow, ProductLo
       JOIN (
         SELECT b.product_id, d.defect_type_id, SUM(d.quantity) AS total_quantity
         FROM defects d
-        JOIN batches b ON b.id = d.batch_id
+        JOIN batch_transitions bt ON bt.id = d.transition_id
+        JOIN batches b ON b.id = bt.batch_id
         GROUP BY b.product_id, d.defect_type_id
       ) totals ON totals.product_id = p.id
       JOIN defect_types dt ON dt.id = totals.defect_type_id

@@ -4,6 +4,7 @@ import { DeviceSchema } from "features/devices/devices.schema";
 import { UserSchema } from "features/users/user.schema";
 import { BatchStatusSchema } from "features/batchStatuses/batchStatus.schema";
 import { DepartmentSchema } from "features/departments/department.schema";
+import { DefectRowSchema, DefectFromRow, DefectSchema } from "features/defects/defect.schema";
 
 const BatchStatusRelationSchema = z.object({
   id: BatchStatusSchema.shape.id,
@@ -53,6 +54,7 @@ const relations = {
   fromStatus: BatchStatusRelationSchema,
   toStatus: BatchStatusRelationSchema,
   coworkers: z.array(CoworkerSchema).default([]),
+  defects: z.array(DefectSchema).default([])
 }
 
 export const BatchTransitionSchema = z.object({ ...shared, ...mapped, ...relations }).meta({ id: "BatchTransition" });
@@ -97,7 +99,8 @@ export const BatchTransitionRowSchema = z.object({
   coworkers: z.object({
     id: UserSchema.shape.id,
     full_name: UserSchema.shape.fullName,
-  }).array().default([])
+  }).array().default([]),
+  defects: DefectRowSchema.array().default([])
 });
 
 export const BatchTransitionFromRow = BatchTransitionRowSchema.transform((row): BatchTransition => ({
@@ -154,7 +157,8 @@ export const BatchTransitionFromRow = BatchTransitionRowSchema.transform((row): 
   coworkers: row.coworkers.map(c => ({
     id: c.id,
     fullName: c.full_name,
-  }))
+  })),
+  defects: row.defects.map((d) => DefectFromRow.parse(d)),
 }));
 
 export const BatchTransitionInsertSchema = z.object({
