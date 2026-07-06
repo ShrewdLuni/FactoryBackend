@@ -18,7 +18,7 @@ export class ProductRepository extends Repository<Product, ProductRow, ProductLo
       code: "code",
       measureUnit: {
         column: "measure_unit_id",
-        extract: (d) => d.measureUnit.id,
+        extract: (d) => d.measureUnit?.id || 1,
       },
       isActive: "is_active",
       quantity: "quantity",

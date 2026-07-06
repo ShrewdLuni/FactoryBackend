@@ -6,9 +6,4 @@ export class BatchTransitionService extends Service<BatchTransition, BatchTransi
   constructor(repo: BatchTransitionRepository = new BatchTransitionRepository()){
     super(repo)
   }
-
-  async findBatchLogs() {
-    const result = await this.repository.findBatchLogs();
-    return result;
-  }
 }

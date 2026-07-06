@@ -6,7 +6,6 @@ const router = express.Router();
 const controller = new BatchTransitionController();
 
 router.get("/", controller.findMany);
-router.get("/logs", controller.findBatchLogs);
 router.post("/", controller.create);
 router.post("/bulk", controller.createMany);
 router.post("/bulk/update", controller.updateMany);

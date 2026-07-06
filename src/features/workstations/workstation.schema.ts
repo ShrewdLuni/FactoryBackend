@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { DbId } from "schemas/utils";
-import { QRCodeSchema } from "schemas/qrcode";
+import { QRCodeSchema } from "features/qrcodes/qrcode.schema";
 
 const shared = {
   id: DbId,

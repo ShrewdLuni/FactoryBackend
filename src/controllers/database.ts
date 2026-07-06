@@ -2,7 +2,6 @@ import express from "express";
 import { query } from "db";
 import { migrate } from "migration";
 import { asyncHandler } from "utils/errorHandler";
-import { addNewUsers } from "utils/queries/seed";
 
 export const testDatabase = asyncHandler(async (req: express.Request, res: express.Response) => {
   const result = await query("SELECT NOW()");
@@ -19,10 +18,3 @@ export const migrateDatabase = asyncHandler(async (req: express.Request, res: ex
   }
   res.status(200).send("Migration succeed");
 });
-
-export const seedDatabase = asyncHandler(async (req: express.Request, res: express.Response) => {
-  await addNewUsers();
-  res.status(200).end();
-});
-
-

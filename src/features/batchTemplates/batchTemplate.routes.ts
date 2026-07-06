@@ -1,9 +1,9 @@
 import express from "express";
-import { BatchTemplateItemController } from "./batchTemplate.controller";
+import { BatchTemplateController } from "./batchTemplate.controller";
 
 const router = express.Router();
 
-const controller = new BatchTemplateItemController();
+const controller = new BatchTemplateController();
 
 router.get("/", controller.findMany);
 router.post("/", controller.create);
