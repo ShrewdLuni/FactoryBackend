@@ -198,27 +198,29 @@ export class BatchRepository {
         actor_role_id: number;
         can_override: boolean;
         in_required_dept: boolean;
+        current_status_label: string;
       }>(
         `SELECT
-          b.status_id,
-          b.actual_size,
-          bs.is_terminal,
-          st.to_status_id,
-          st.required_department_id,
-          st.required_role_id,
-          u.role_id               AS actor_role_id,
-          r.can_override_workflow AS can_override,
-          EXISTS (
-            SELECT 1 FROM user_departments ud
-            WHERE ud.user_id = $2
-              AND ud.department_id = st.required_department_id
-          )                       AS in_required_dept
-        FROM batches b
-        JOIN batch_statuses   bs ON bs.id = b.status_id
-        LEFT JOIN status_transitions st ON st.from_status_id = b.status_id
-        JOIN users            u  ON u.id = $2 AND u.is_active = TRUE
-        JOIN roles            r  ON r.id = u.role_id
-        WHERE b.id = $1 AND b.is_active = TRUE`,
+b.status_id,
+b.actual_size,
+bs.is_terminal,
+bs.label              AS current_status_label,
+st.to_status_id,
+st.required_department_id,
+st.required_role_id,
+u.role_id               AS actor_role_id,
+r.can_override_workflow AS can_override,
+EXISTS (
+SELECT 1 FROM user_departments ud
+WHERE ud.user_id = $2
+AND ud.department_id = st.required_department_id
+)                       AS in_required_dept
+FROM batches b
+JOIN batch_statuses   bs ON bs.id = b.status_id
+LEFT JOIN status_transitions st ON st.from_status_id = b.status_id
+JOIN users            u  ON u.id = $2 AND u.is_active = TRUE
+JOIN roles            r  ON r.id = u.role_id
+WHERE b.id = $1 AND b.is_active = TRUE`,
         [batchId, actorId],
       );
 
@@ -239,11 +241,67 @@ export class BatchRepository {
       // 4. Permission check
       const hasPermission =
         ctx.can_override ||
-        (ctx.required_role_id !== null && ctx.actor_role_id === ctx.required_role_id) ||
-        (ctx.required_department_id !== null && ctx.in_required_dept);
+          (ctx.required_role_id !== null && ctx.actor_role_id === ctx.required_role_id) ||
+          (ctx.required_department_id !== null && ctx.in_required_dept);
 
       if (!hasPermission) {
         throw new Error(`Actor ${actorId} is not permitted to advance batch ${batchId}`);
+      }
+
+      // 4b. Workload limit — only when transitioning into active work (any In-Progress)
+      if (!ctx.can_override) {
+        const { rows: [toStatus] } = await client.query<{ label: string }>(
+          `SELECT label FROM batch_statuses WHERE id = $1`,
+          [ctx.to_status_id],
+        );
+
+        const isTransitioningToInProgress = toStatus.label.includes("(In-Progress)");
+        const isTransitioningToPackaging  = toStatus.label === "Packaging Workshop (In-Progress)";
+
+        if (isTransitioningToInProgress) {
+          const PACKAGING_IN_PROGRESS_LABEL = "Packaging Workshop (In-Progress)";
+          const PACKAGING_BATCH_LIMIT = 30;
+
+          const { rows: [workload] } = await client.query<{
+            in_progress_count: number;
+            packaging_count: number;
+          }>(
+            `SELECT
+COUNT(DISTINCT b.id) FILTER (
+WHERE bs.label LIKE '%(In-Progress)%'
+AND   bs.label != $2
+) AS in_progress_count,
+COUNT(DISTINCT b.id) FILTER (
+WHERE bs.label = $2
+) AS packaging_count
+FROM batch_workers bw
+JOIN batches        b  ON b.id  = bw.batch_id AND b.is_active = TRUE
+JOIN batch_statuses bs ON bs.id = b.status_id
+JOIN departments    d  ON d.id  = bw.department_id
+WHERE bw.worker_id      = $1
+AND b.id             != $3
+AND bs.is_terminal    = FALSE
+AND bs.label LIKE '%' || d.label || '%'`,
+            [actorId, PACKAGING_IN_PROGRESS_LABEL, batchId],
+          );
+
+          const inProgressCount = Number(workload.in_progress_count);
+          const packagingCount  = Number(workload.packaging_count);
+
+          if (isTransitioningToPackaging) {
+            if (packagingCount >= PACKAGING_BATCH_LIMIT) {
+              throw new Error(
+                `Worker ${actorId} has reached the limit of ${PACKAGING_BATCH_LIMIT} concurrent packaging batches.`,
+              );
+            }
+          } else {
+            if (inProgressCount > 20) {
+              throw new Error(
+                `Worker ${actorId} is already working on another batch. Finish it before taking a new one.`,
+              );
+            }
+          }
+        }
       }
 
       // 5. Optional size override (must happen before defect subtraction)
@@ -255,38 +313,40 @@ export class BatchRepository {
         ctx.actual_size = sizeOverride;
       }
 
-      // 6. Validate defects don't exceed actual size
+      // 6. Validate defects don't exceed actual size (skip for Activated — no subtraction)
       const totalDefects = defects.reduce((sum, d) => sum + d.quantity, 0);
-      if (totalDefects > ctx.actual_size) {
+      const isKnittingTransition = ctx.current_status_label === "Activated";
+
+      if (!isKnittingTransition && totalDefects > ctx.actual_size) {
         throw new Error(
           `Total defects (${totalDefects}) exceed actual size (${ctx.actual_size}) for batch ${batchId}`,
         );
       }
 
-      // 7. Subtract defects and advance status atomically
+      // 7. Advance status (and subtract defects if not Knitting transition)
       const { rows: [updatedRow] } = await client.query<BatchRow>(
-        `UPDATE batches
-         SET actual_size = actual_size - $2,
-             status_id   = $3
-         WHERE id = $1
-         RETURNING *`,
-        [batchId, totalDefects, ctx.to_status_id],
+        isKnittingTransition
+          ? `UPDATE batches SET status_id = $2 WHERE id = $1 RETURNING *`
+          : `UPDATE batches SET actual_size = actual_size - $2, status_id = $3 WHERE id = $1 RETURNING *`,
+        isKnittingTransition
+          ? [batchId, ctx.to_status_id]
+          : [batchId, totalDefects, ctx.to_status_id],
       );
 
       // 8. Insert defect records
       if (defects.length > 0) {
         const defectValues = defects
-          .filter((d) => d.quantity > 0)
-          .map((_, i) => `($1, $2, $${i * 2 + 3}, $${i * 2 + 4})`)
-          .join(", ");
+        .filter((d) => d.quantity > 0)
+        .map((_, i) => `($1, $2, $${i * 2 + 3}, $${i * 2 + 4})`)
+        .join(", ");
 
         const defectParams = defects
-          .filter((d) => d.quantity > 0)
-          .flatMap((d) => [d.defect_type_id, d.quantity]);
+        .filter((d) => d.quantity > 0)
+        .flatMap((d) => [d.defect_type_id, d.quantity]);
 
         await client.query(
           `INSERT INTO defects (batch_id, batch_status_id, defect_type_id, quantity)
-           VALUES ${defectValues}`,
+VALUES ${defectValues}`,
           [batchId, ctx.status_id, ...defectParams],
         );
       }
@@ -295,8 +355,8 @@ export class BatchRepository {
       if (ctx.required_department_id !== null) {
         await client.query(
           `INSERT INTO batch_workers (batch_id, department_id, worker_id)
-           VALUES ($1, $2, $3)
-           ON CONFLICT (batch_id, department_id) DO NOTHING`,
+VALUES ($1, $2, $3)
+ON CONFLICT (batch_id, department_id) DO NOTHING`,
           [batchId, ctx.required_department_id, actorId],
         );
       }
@@ -304,7 +364,7 @@ export class BatchRepository {
       // 10. Audit trail
       await client.query(
         `INSERT INTO batch_transitions (batch_id, from_status_id, to_status_id, actor_id)
-         VALUES ($1, $2, $3, $4)`,
+VALUES ($1, $2, $3, $4)`,
         [batchId, ctx.status_id, ctx.to_status_id, actorId],
       );
 
@@ -413,5 +473,4 @@ async packBatch(
       return BatchFromRow.parse(updated);
     }
   });
-}
-}
+}}

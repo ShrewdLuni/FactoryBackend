@@ -31,3 +31,8 @@ export const bulkPatchSchema = <T extends z.ZodTypeAny>(schema: T) =>
     data: schema,
   });
 
+export const lookupByIdSchema = z.union([
+  z.object({ id: z.number().positive() })
+])
+
+export type IdLookup = z.infer<typeof lookupByIdSchema>;

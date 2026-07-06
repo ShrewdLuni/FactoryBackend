@@ -9,11 +9,11 @@ import workstationRouter from "./workstations"
 
 const router = express.Router()
 
-router.use('/auth', authRouter)
-router.use('/products', productRouter)
-router.use('/batches', batchRouter)
-router.use('/qrcodes', qrcodeRouter)
-router.use('/users', userRouter)
+router.use('/auth', authRouter) // 4 unique endpoints
+router.use('/products', productRouter) // 1 unique endpoint
+router.use('/batches', batchRouter) // 3 unique endpoints
+router.use('/qrcodes', qrcodeRouter) // 2 unique endpoints
+router.use('/users', userRouter) 
 router.use('/workstations', workstationRouter)
 router.use('/db', databaseRouter)
 
