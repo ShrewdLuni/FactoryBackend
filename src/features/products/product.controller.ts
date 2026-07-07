@@ -1,14 +1,15 @@
-import { Controller } from "abstract/controller";
-import { ProductInsertSchema, type Product, type ProductInsert } from "./product.schema";
-import { ProductService } from "./product.service";
 import express from "express";
+import { Controller } from "abstract/controller";
+import { ProductInsertSchema, ProductPatchSchema, type Product, type ProductInsert } from "./product.schema";
+import { ProductService } from "./product.service";
 import { asyncHandler } from "utils/errorHandler";
 import { paramsSchema } from "schemas/utils";
 import { packRequestSchema } from "schemas/productPack";
+import type { ZodType } from "zod";
 
 export class ProductController extends Controller<Product, ProductInsert, ProductService> {
   constructor(service: ProductService = new ProductService()) {
-    super(service, ProductInsertSchema);
+    super(service, ProductInsertSchema, ProductPatchSchema as ZodType<Partial<ProductInsert>>);
   }
 
   findQuantities = asyncHandler(async (_req: express.Request, res: express.Response) => {

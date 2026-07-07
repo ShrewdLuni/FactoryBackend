@@ -48,9 +48,16 @@ export const ProductInsertSchema = ProductSchema.omit({ id: true })
   .partial({ measureUnit: true, isActive: true, quantity: true })
   .meta({ id: "ProductInsert" });
 
+export const ProductPatchSchema = ProductSchema.omit({ id: true })
+  .partial()
+  .extend({ quantity: z.int().min(0).optional(),  })
+  .meta({ id: "ProductPatch" });
+
+
 export const ProductLookupSchema = z.union([z.object({ id: z.number().positive() }), z.object({ code: z.string() })]);
 
 export type Product = z.infer<typeof ProductSchema>;
 export type ProductRow = z.infer<typeof ProductRowSchema>;
 export type ProductInsert = z.infer<typeof ProductInsertSchema>;
+export type ProductPatch = z.infer<typeof ProductPatchSchema>;
 export type ProductLookup = z.infer<typeof ProductLookupSchema>;

@@ -7,14 +7,17 @@ import type { ZodType } from "zod";
 export abstract class Controller<T, TInsert, TService extends Service<T, TInsert, any, any>> {
   protected service: TService;
   protected insertSchema: ZodType<TInsert>;
+  protected patchSchema?: ZodType<Partial<TInsert>> | undefined;
 
-  constructor(service: TService, insertSchema: ZodType<TInsert>) {
+  constructor(service: TService, insertSchema: ZodType<TInsert>, patchSchema?: ZodType<Partial<TInsert>>) {
     this.service = service;
     this.insertSchema = insertSchema;
+    this.patchSchema = patchSchema;
   }
 
   private getPatchSchema(): ZodType<Partial<TInsert>> {
-    return (this.insertSchema as unknown as { partial(): ZodType<Partial<TInsert>> }).partial();
+    return this.patchSchema ??
+      (this.insertSchema as unknown as { partial(): ZodType<Partial<TInsert>> }).partial();
   }
 
   find = asyncHandler(async (req: express.Request, res: express.Response) => {
