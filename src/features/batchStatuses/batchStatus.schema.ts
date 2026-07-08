@@ -23,7 +23,7 @@ const relations = {
   department: z.object({
     id: DepartmentSchema.shape.id,
     label: DepartmentSchema.shape.label.nullish(),
-  }),
+  }).nullable(),
 };
 
 export const BatchStatusSchema = z.object({ ...shared, ...mapped, ...relations }).meta({ id: "BatchStatus" });
@@ -40,8 +40,8 @@ export const BatchStatusRowSchema = z.object({
   is_packaging: mapped.isPackaging,
   subtract_defects: mapped.subtractDefects,
   is_milestone: mapped.isMilestone,
-  department_id: relations.department.shape.id.nullable(),
-  department_label: relations.department.shape.label.nullable(),
+  department_id: DepartmentSchema.shape.id.nullish(),
+  department_label: DepartmentSchema.shape.label.nullish(),
 });
 
 export const BatchStatusFromRow = BatchStatusRowSchema.transform((row) => {
@@ -72,7 +72,12 @@ export const BatchStatusFromRow = BatchStatusRowSchema.transform((row) => {
     isPackaging: is_packaging,
     subtractDefects: subtract_defects,
     isMilestone: is_milestone,
-    department: department_id ? { id: department_id, label: department_label as string } : null,
+    department: department_id
+      ? {
+        id: department_id,
+        label: department_label,
+      }
+      : null,
   };
 });
 

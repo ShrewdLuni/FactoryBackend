@@ -5,8 +5,8 @@ import { DepartmentSchema } from "features/departments/department.schema";
 import { DbId } from "schemas/utils";
 import { z } from "zod"; 
 import { BatchTransitionSchema } from "features/batchTransitions/batchTransitions.schema";
-import { UserSchema } from "schemas/user";
 import { DefectFromRow, DefectRowSchema, DefectSchema } from "features/defects/defect.schema";
+import { UserSchema } from "features/users/user.schema";
 
 // export const BatchWorkerSchema = z.object({
 //   department: z.object({
@@ -41,7 +41,7 @@ const BatchStatusRelationSchema = z.object({
   department: z.object({
     id: DepartmentSchema.shape.id.nullish(),
     label: DepartmentSchema.shape.label.nullish(),
-  }),
+  }).nullish(),
 })
 
 const DefaultBatchStatusRelationSchema = BatchStatusRelationSchema.default({
@@ -110,8 +110,8 @@ export const BatchRowSchema = z.object({
   status_is_packaging: BatchStatusRelationSchema.shape.isPackaging,
   status_subtract_defects: BatchStatusRelationSchema.shape.subtractDefects,
   status_is_milestone: BatchStatusRelationSchema.shape.isMilestone,
-  status_department_id: BatchStatusRelationSchema.shape.department.shape.id.nullable(),
-  status_department_label: BatchStatusRelationSchema.shape.department.shape.label.nullable(),
+  status_department_id: DepartmentSchema.shape.id.nullish(),
+  status_department_label: DepartmentSchema.shape.label.nullish(),
   is_active: mapped.isActive,
   transitions: z.object({
     id: BatchTransitionSchema.shape.id,
@@ -136,8 +136,8 @@ export const BatchRowSchema = z.object({
     from_status_is_packaging: BatchStatusRelationSchema.shape.isPackaging,
     from_status_subtract_defects: BatchStatusRelationSchema.shape.subtractDefects,
     from_status_is_milestone: BatchStatusRelationSchema.shape.isMilestone,
-    from_status_department_id: BatchStatusRelationSchema.shape.department.shape.id.nullable(),
-    from_status_department_label: BatchStatusRelationSchema.shape.department.shape.label.nullable(),
+    from_status_department_id: DepartmentSchema.shape.id.nullish(),
+    from_status_department_label: DepartmentSchema.shape.label.nullish(),
 
     to_status_id: BatchStatusRelationSchema.shape.id,
     to_status_label: BatchStatusRelationSchema.shape.label,
@@ -151,8 +151,8 @@ export const BatchRowSchema = z.object({
     to_status_is_packaging: BatchStatusRelationSchema.shape.isPackaging,
     to_status_subtract_defects: BatchStatusRelationSchema.shape.subtractDefects,
     to_status_is_milestone: BatchStatusRelationSchema.shape.isMilestone,
-    to_status_department_id: BatchStatusRelationSchema.shape.department.shape.id.nullable(),
-    to_status_department_label: BatchStatusRelationSchema.shape.department.shape.label.nullable(),
+    to_status_department_id: DepartmentSchema.shape.id.nullish(),
+    to_status_department_label: DepartmentSchema.shape.label.nullish(),
 
     coworkers: z.object({
       id: UserSchema.shape.id,
@@ -162,7 +162,7 @@ export const BatchRowSchema = z.object({
   }).array().default([])
 })
 
-export const BatchInsertSchema = BatchSchema.omit({ id: true, transitions: true }).partial({ product: true, workstation: true, size: true, status: true }).meta({ id: "BatchInsert" });
+export const BatchInsertSchema = BatchSchema.omit({ id: true, transitions: true }).partial({ product: true, workstation: true, size: true, status: true, isActive: true }).meta({ id: "BatchInsert" });
 
 export const BatchFromRow = BatchRowSchema.transform((row): Batch => ({
   id: row.id,

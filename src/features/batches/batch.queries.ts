@@ -130,3 +130,28 @@ JOIN LATERAL (
 WHERE bs.is_in_progress = true
   AND latest.actor_id = $1;
 `
+
+export const BATCH_BASE_SELECT = `
+  SELECT
+    b.*,
+    p.name  AS product_name,
+    w.name  AS workstation_name,
+    s.label                    AS status_label,
+    s.sort_order                AS status_sort_order,
+    s.is_terminal                AS status_is_terminal,
+    s.allows_defect_reporting     AS status_allows_defect_reporting,
+    s.is_active                  AS status_is_active,
+    s.is_in_progress              AS status_is_in_progress,
+    s.is_finished                 AS status_is_finished,
+    s.requires_size_input          AS status_requires_size_input,
+    s.is_packaging                AS status_is_packaging,
+    s.subtract_defects             AS status_subtract_defects,
+    s.is_milestone                AS status_is_milestone,
+    s.department_id               AS status_department_id,
+    d.label                      AS status_department_label
+  FROM batches b
+  LEFT JOIN products p        ON p.id = b.product_id
+  LEFT JOIN workstations w    ON w.id = b.workstation_id
+  LEFT JOIN batch_statuses s  ON s.id = b.status_id
+  LEFT JOIN departments d     ON d.id = s.department_id
+`;

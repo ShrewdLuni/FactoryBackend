@@ -20,12 +20,12 @@ const BatchStatusRelationSchema = z.object({
 const requiredDepartment = z.object({
   id: DepartmentSchema.shape.id,
   label: DepartmentSchema.shape.label,
-}).nullable();
+}).nullish();
 
 const requiredRole = z.object({
   id: RoleSchema.shape.id,
   label: RoleSchema.shape.label,
-}).nullable();
+}).nullish();
 
 const shared = {
   id: DbId,
@@ -37,7 +37,7 @@ const relations = {
   required: z.object({
     department: requiredDepartment,
     role: requiredRole,
-  }),
+  }).nullish(),
 };
 
 const StatusTransitionSchema = z.object({ ...shared, ...relations }).meta({ id: "StatusTransition" })
@@ -45,7 +45,7 @@ const StatusTransitionSchema = z.object({ ...shared, ...relations }).meta({ id: 
 export const StatusTransitionRowSchema = z.object({
   ...shared,
   from_status_id: BatchStatusSchema.shape.id,
-  from_status_label: BatchStatusSchema.shape.label,
+  from_status_label: BatchStatusSchema.shape.label.nullish(),
   from_status_is_terminal: BatchStatusSchema.shape.isTerminal,
   from_status_allows_defect_reporting: BatchStatusSchema.shape.allowsDefectReporting,
   from_status_is_active: BatchStatusSchema.shape.isActive,
@@ -55,7 +55,7 @@ export const StatusTransitionRowSchema = z.object({
   from_status_is_packaging: BatchStatusSchema.shape.isPackaging,
   from_status_subtract_defects: BatchStatusSchema.shape.subtractDefects,
   to_status_id: BatchStatusSchema.shape.id,
-  to_status_label: BatchStatusSchema.shape.label,
+  to_status_label: BatchStatusSchema.shape.label.nullish(),
   to_status_is_terminal: BatchStatusSchema.shape.isTerminal,
   to_status_allows_defect_reporting: BatchStatusSchema.shape.allowsDefectReporting,
   to_status_is_active: BatchStatusSchema.shape.isActive,
@@ -64,10 +64,10 @@ export const StatusTransitionRowSchema = z.object({
   to_status_requires_size_input: BatchStatusSchema.shape.requiresSizeInput,
   to_status_is_packaging: BatchStatusSchema.shape.isPackaging,
   to_status_subtract_defects: BatchStatusSchema.shape.subtractDefects,
-  required_department_id: DepartmentSchema.shape.id,
-  required_department_label: DepartmentSchema.shape.label,
-  required_role_id: RoleSchema.shape.id, 
-  required_role_label: RoleSchema.shape.label,
+  required_department_id: DepartmentSchema.shape.id.nullish(),
+  required_department_label: DepartmentSchema.shape.label.nullish(),
+  required_role_id: RoleSchema.shape.id.nullish(), 
+  required_role_label: RoleSchema.shape.label.nullish(),
 });
 
 export const StatusTransitionFromRow = StatusTransitionRowSchema.transform((row) => {
@@ -140,14 +140,14 @@ export const StatusTransitionFromRow = StatusTransitionRowSchema.transform((row)
 export const StatusTransitionInsertSchema = z.object({
   fromStatus: BatchStatusRelationSchema.pick({ id: true }),
   toStatus: BatchStatusRelationSchema.pick({ id: true }),
-  requiredDepartment: requiredDepartment.unwrap().pick({ id: true }).nullable(),
-  requiredRole: requiredRole.unwrap().pick({ id: true }).nullable(),
+  requiredDepartment: requiredDepartment.unwrap().unwrap().pick({ id: true }).nullable(),
+  requiredRole: requiredRole.unwrap().unwrap().pick({ id: true }).nullable(),
 });
 
 
 export const StatusTransitionLookupSchema = z.union([
   z.object({ id: z.number().positive() }),
-  z.object({ fromStatus: z.number().positive() }),
+  z.object({ fromStatus: { id: z.number().positive() } }),
   z.object({ toStatus: z.number().positive() }),
 ]);
 

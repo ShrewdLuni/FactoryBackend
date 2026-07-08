@@ -20,7 +20,7 @@ export class ShiftRepository extends Repository<Shift, ShiftRow, ShiftLookup, Sh
 
   async findActiveByWorkerId(workerId: number, forUpdate = false): Promise<Shift | null> {
     const result = await query<ShiftRow>(
-      `SELECT ws.*, d.name 
+      `SELECT ws.*, d.name, d.department_id as device_department_id 
        FROM worker_device_sessions ws JOIN devices d ON ws.device_id = d.id
        WHERE ws.worker_id = $1 AND ws.ended_at IS NULL
        LIMIT 1
