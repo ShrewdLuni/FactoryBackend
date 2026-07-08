@@ -9,9 +9,9 @@ import { BatchStatusInsertSchema, BatchStatusSchema } from "features/batchStatus
 import { DefectTypeSchema, DefectTypeInsertSchema } from "features/defectTypes/defectType.schema";
 import { DeviceInsertSchema, DeviceSchema } from "features/devices/devices.schema";
 import { PackedStockInsertSchema, PackedStockSchema } from "features/packedStock/packedStock.schema";
-import { ProductInsertSchema, ProductSchema } from "features/products/product.schema";
+import { ProductInsertSchema, ProductPatchSchema, ProductSchema } from "features/products/product.schema";
 import { QRCodeInsertSchema, QRCodeSchema } from "features/qrcodes/qrcode.schema";
-import { BatchInsertSchema, BatchSchema } from "features/batches/batch.schema";
+import { BatchAdvanceRequestSchema, BatchInsertSchema, BatchSchema } from "features/batches/batch.schema";
 import { DefectInsertSchema, DefectSchema } from "features/defects/defect.schema";
 import { StorageEntryInsertSchema, StorageEntrySchema } from "features/storageEntries/storageEntry.schema";
 import { QuantitiesByStatusSchema } from "schemas/productQuantities";
@@ -19,6 +19,7 @@ import { DefectsByProductSchema } from "schemas/defectQuantities";
 import { BatchTransitionSchema, BatchTransitionInsertSchema } from "features/batchTransitions/batchTransitions.schema";
 import { paramsSchema } from "schemas/utils";
 import { packRequestSchema } from "schemas/productPack";
+import { shiftPaths } from "features/shifts/shift.openapi";
 
 export function generateOpenApiDoc() {
   return createDocument({
@@ -26,6 +27,7 @@ export function generateOpenApiDoc() {
     info: { title: "API", version: "1.0.0" },
     servers: [{ url: "/" }],
     paths: {
+      ...shiftPaths,
       ...buildCrudPaths({
         resource: "batchStatuses",
         tag: "BatchStatus",
@@ -62,6 +64,21 @@ export function generateOpenApiDoc() {
                     },
                   },
                 },
+              },
+            },
+          },
+          "/batches/{id}/advance": {
+            post: {
+              tags: ["Batch"],
+              operationId: "advanceBatch",
+              requestParams: { path: paramsSchema },
+              requestBody: {
+                content: { "application/json": { schema: BatchAdvanceRequestSchema } },
+              },
+              responses: {
+                "200": { description: "Batch advanced" },
+                "400": { description: "Validation or workflow error (missing size, role/department mismatch, defect overflow, etc.)" },
+                "404": { description: "Batch, user, or active shift not found" },
               },
             },
           },
@@ -109,6 +126,7 @@ export function generateOpenApiDoc() {
         tag: "Product",
         entitySchema: ProductSchema,
         insertSchema: ProductInsertSchema,
+        patchSchema: ProductPatchSchema,
         extra: {
           "/products/quantities": {
             get: {

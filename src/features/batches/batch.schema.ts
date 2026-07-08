@@ -251,6 +251,19 @@ export const BatchFromRow = BatchRowSchema.transform((row): Batch => ({
   }))
 }));
 
+export const BatchAdvanceRequestSchema = z.object({
+  actorId: DbId,
+  coworkers: DbId.array().default([]),
+  defects: z.object({
+    defectTypeId: DbId,
+    quantity: z.int().min(1),
+  }).array().default([]),
+  sizeOverride: z.int().positive().optional(),
+  remainder: z.int().min(0).optional(),
+}).meta({ id: "BatchAdvanceRequest" });
+
+export type BatchAdvanceRequest = z.infer<typeof BatchAdvanceRequestSchema>;
+
 export const BatchLookupSchema = z.union([
   z.object({ id: z.number().positive() })
 ]);
