@@ -58,7 +58,8 @@ export class BatchService extends Service<Batch, BatchInsert, BatchLookup, Batch
     sizeOverride?: number,
     remainder?: number) {
 
-    const IN_PROGRESS_BATCHES_LIMIT = 6;
+    const IN_PROGRESS_BATCHES_LIMIT = 1;
+    const PACKING_BATCHES_LIMIT = 5;
 
     return transaction(async () => {
 
@@ -123,8 +124,10 @@ export class BatchService extends Service<Batch, BatchInsert, BatchLookup, Batch
       console.log(`Batch: ${batchId} | Actor: ${actorId}: 12. Requirements group is over`)
 
       const actorBatchesInProgress = await this.repository.findActiveByWorker(actorId);
-      console.log(actorBatchesInProgress)
-      if (actorBatchesInProgress.length > IN_PROGRESS_BATCHES_LIMIT && !actor.role.canOverrideWorkflow)
+      const packStatus = [12, 13, 14] 
+      const limit = packStatus.includes(batch.status.id) ?  PACKING_BATCHES_LIMIT : IN_PROGRESS_BATCHES_LIMIT
+      console.log(!batch.status.isInProgress, actorBatchesInProgress.length, limit, actorBatchesInProgress.length >= limit, !actor.role.canOverrideWorkflow)
+      if (!batch.status.isInProgress && actorBatchesInProgress.length >= limit && !actor.role.canOverrideWorkflow)
           throw new Error(`User ${actorId} is already working: ${actorBatchesInProgress.map(item => item.id)}`);
       console.log(`Batch: ${batchId} | Actor: ${actorId}: 13. Active Batches check passed`)
 
@@ -180,7 +183,6 @@ export class BatchService extends Service<Batch, BatchInsert, BatchLookup, Batch
       console.log(`Batch: ${batchId} | Actor: ${actorId}: 19.1. Product: \n\n${JSON.stringify(product)}, \n\nreminder: ${remainder}`)
         if (product && remainder !== null && remainder !== undefined) {
           if (remainder === 0) {
-
             console.log(`Batch: ${batchId} | Actor: ${actorId}: 19.1.a. Completed: Product: \n\n${JSON.stringify(product)}, \n\nreminder: ${remainder}`)
             const completedID = 14
             const addSize = batch.size || 0
