@@ -8,8 +8,8 @@ const shared = {
 
 const relations = {
   user: z.object({
-    id: UserSchema.shape.id,
-  }),
+    id: UserSchema.shape.id.nullish(),
+  }).nullish(),
 };
 
 export const AuthSchema = z.object({ ...shared, ...relations }).meta({ id: "Auth" });;

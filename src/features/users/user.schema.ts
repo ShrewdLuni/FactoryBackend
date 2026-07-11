@@ -12,7 +12,7 @@ const shared = {
   patronymic: z.string().nullish(),
   email: z.email().nullish(),
   phone: z.string().nullish(),
-  gender: genderEnum.default("Other"),
+  gender: genderEnum,
   departments: DepartmentSchema.array().nullish().default([]),
 };
 
@@ -84,14 +84,24 @@ export const UserFromRow = UserRowSchema.transform((row) => {
 });
 
 export const UserInsertSchema = UserSchema
-  .omit({ id: true, fullName: true, departments: true })
-  .partial({ isActive: true, patronymic: true, gender: true })
+  .omit({ id: true, fullName: true, departments: true, gender: true })
+  .partial({ isActive: true, patronymic: true })
   .extend({
+    gender: genderEnum.default("Other"),
     departmentIds: DbId.array().nullish().default([])
   })
   .meta({ id: "UserInsert" });
 
+export const UserPatchSchema = UserSchema
+  .omit({ id: true, fullName: true, departments: true })
+  .extend({
+    departmentIds: DbId.array().nullish()
+  })
+  .partial({ isActive: true, patronymic: true, gender: true, role: true, firstName: true, lastName: true })
+  .meta({ id: "UserPatch" });
+
 export type User = z.infer<typeof UserSchema>
 export type UserRow = z.infer<typeof UserRowSchema>
 export type UserInsert = z.infer<typeof UserInsertSchema>
+export type UserPatch = z.infer<typeof UserPatchSchema>
 export type UserLookup = z.infer<typeof UserLookupSchema>
