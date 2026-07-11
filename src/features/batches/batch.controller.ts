@@ -1,12 +1,13 @@
 import express from "express";
 import { Controller } from "abstract/controller";
-import { BatchAdvanceRequestSchema, BatchInsertSchema, type Batch, type BatchInsert } from "./batch.schema";
+import { BatchAdvanceRequestSchema, BatchInsertSchema, BatchPatchSchema, type Batch, type BatchInsert } from "./batch.schema";
 import { BatchService } from "./batch.service";
 import { asyncHandler } from "utils/errorHandler";
+import type { ZodType } from "zod";
 
 export class BatchController extends Controller<Batch, BatchInsert, BatchService> {
   constructor(service: BatchService = new BatchService()) {
-    super(service, BatchInsertSchema);
+    super(service, BatchInsertSchema, BatchPatchSchema as ZodType<Partial<BatchInsert>>);
   }
 
   findManyWithAll = asyncHandler(async (_req: express.Request, res: express.Response) => {

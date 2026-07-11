@@ -8,7 +8,7 @@ export abstract class Repository<T, TRow extends QueryResultRow, TLookup extends
   protected schema: ZodType<T>;
   protected columns: string[];
   private fieldMap: FieldMap<TInsert>;
-  private lookupMap: LookupMap<TLookup>;
+  protected lookupMap: LookupMap<TLookup>;
   private keys: (keyof TInsert & string)[];
 
   constructor(tableName: string, schema: ZodType<T>, fieldMap: FieldMap<TInsert>, lookupMap: LookupMap<TLookup> = {id: "id"}) {

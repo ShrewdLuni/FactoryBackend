@@ -1,6 +1,6 @@
 import { createDocument } from "zod-openapi";
 import { buildCrudPaths } from "./buildCrudPaths";
-import { UserSchema, UserInsertSchema } from "features/users/user.schema";
+import { UserSchema, UserInsertSchema, UserPatchSchema } from "features/users/user.schema";
 import { RoleSchema, RoleInsertSchema } from "features/roles/role.schema";
 import { DepartmentSchema, DepartmentInsertSchema } from "features/departments/department.schema";
 import { WorkstationSchema, WorkstationInsertSchema } from "features/workstations/workstation.schema";
@@ -11,7 +11,7 @@ import { DeviceInsertSchema, DeviceSchema } from "features/devices/devices.schem
 import { PackedStockInsertSchema, PackedStockSchema } from "features/packedStock/packedStock.schema";
 import { ProductInsertSchema, ProductPatchSchema, ProductSchema } from "features/products/product.schema";
 import { QRCodeInsertSchema, QRCodeSchema } from "features/qrcodes/qrcode.schema";
-import { BatchAdvanceRequestSchema, BatchInsertSchema, BatchSchema } from "features/batches/batch.schema";
+import { BatchAdvanceRequestSchema, BatchInsertSchema, BatchPatchSchema, BatchSchema } from "features/batches/batch.schema";
 import { DefectInsertSchema, DefectSchema } from "features/defects/defect.schema";
 import { StorageEntryInsertSchema, StorageEntrySchema } from "features/storageEntries/storageEntry.schema";
 import { QuantitiesByStatusSchema } from "schemas/productQuantities";
@@ -50,6 +50,7 @@ export function generateOpenApiDoc() {
         pluralTag: "Batches",
         entitySchema: BatchSchema,
         insertSchema: BatchInsertSchema,
+        patchSchema: BatchPatchSchema,
         extra: {
           "/batches/expanded": {
             get: {
@@ -188,7 +189,7 @@ export function generateOpenApiDoc() {
         entitySchema: StorageEntrySchema,
         insertSchema: StorageEntryInsertSchema,
       }),
-      ...buildCrudPaths({ resource: "users", tag: "User", entitySchema: UserSchema, insertSchema: UserInsertSchema }),
+      ...buildCrudPaths({ resource: "users", tag: "User", entitySchema: UserSchema, insertSchema: UserInsertSchema, patchSchema: UserPatchSchema }),
       ...buildCrudPaths({
         resource: "workstations",
         tag: "Workstation",

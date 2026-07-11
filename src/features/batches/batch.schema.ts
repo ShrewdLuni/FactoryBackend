@@ -8,25 +8,13 @@ import { BatchTransitionSchema } from "features/batchTransitions/batchTransition
 import { DefectFromRow, DefectRowSchema, DefectSchema } from "features/defects/defect.schema";
 import { UserSchema } from "features/users/user.schema";
 
-// export const BatchWorkerSchema = z.object({
-//   department: z.object({
-//     id: DepartmentSchema.shape.id,
-//     label: DepartmentSchema.shape.label.nullish(),
-//     isActive: DepartmentSchema.shape.isActive.nullish(),
-//   }),
-//   worker: z.object({
-//     id: UserSchema.shape.id,
-//     fullName: UserSchema.shape.fullName.nullish(),
-//   }),
-// });
-
 const CoworkerSchema = z.object({
   id: UserSchema.shape.id,
   fullName: UserSchema.shape.fullName.nullish(),
 });
 
 const BatchStatusRelationSchema = z.object({
-  id: BatchStatusSchema.shape.id.default(1),
+  id: BatchStatusSchema.shape.id,
   label: BatchStatusSchema.shape.label.nullish(),
   isTerminal: BatchStatusSchema.shape.isTerminal.nullish(),
   sortOrder: BatchStatusSchema.shape.sortOrder.nullish(),
@@ -68,7 +56,7 @@ const relations = {
     id: WorkstationSchema.shape.id.nullish(),
     name: WorkstationSchema.shape.name.nullish(),
   }),
-  status: DefaultBatchStatusRelationSchema,
+  status: BatchStatusRelationSchema,
   transitions: z.object({
     id: BatchTransitionSchema.shape.id,
     occuredAt: BatchTransitionSchema.shape.occurredAt,
@@ -162,7 +150,18 @@ export const BatchRowSchema = z.object({
   }).array().default([])
 })
 
-export const BatchInsertSchema = BatchSchema.omit({ id: true, transitions: true }).partial({ product: true, workstation: true, size: true, status: true, isActive: true }).meta({ id: "BatchInsert" });
+export const BatchInsertSchema = BatchSchema
+  .omit({ id: true, transitions: true, status: true })
+  .partial({ product: true, workstation: true, size: true, isActive: true })
+  .extend({
+    status: BatchStatusRelationSchema.default({ id: 1, department: {} }),
+  })
+  .meta({ id: "BatchInsert" });
+
+export const BatchPatchSchema = BatchSchema
+  .omit({ id: true, transitions: true })
+  .partial()
+  .meta({ id: "BatchPatch" });
 
 export const BatchFromRow = BatchRowSchema.transform((row): Batch => ({
   id: row.id,
