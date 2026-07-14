@@ -4,7 +4,12 @@ import { query } from "db";
 
 export class StorageEntryRepository extends Repository<StorageEntry, StorageEntryRow, StorageEntryLookup, StorageEntryInsert> {
   constructor() {
-    super("storage_entries", StorageEntryFromRow, { product: { column: "product_id", extract: (d) => d.product.id }, boxSize: "box_size"})
+    super("storage_entries", StorageEntryFromRow, 
+      { 
+        product: { column: "product_id", extract: (d) => d.product.id }, 
+        boxSize: "box_size",
+        writtenOffAt: "written_off_at",
+      })
   }
 
   async findMany(): Promise<StorageEntry[]> {
@@ -12,7 +17,6 @@ export class StorageEntryRepository extends Repository<StorageEntry, StorageEntr
       se.*, p.name as product_name FROM storage_entries se 
       LEFT JOIN products p ON se.product_id = p.id;
     `);
-    console.log(result.rows)
     return StorageEntryFromRow.array().parse(result.rows);
   }
 }

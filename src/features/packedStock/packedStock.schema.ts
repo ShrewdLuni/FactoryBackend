@@ -12,6 +12,7 @@ const relations = {
     id: ProductSchema.shape.id,
     code: ProductSchema.shape.code.nullish(),
     name: ProductSchema.shape.name.nullish(),
+    boxSize: ProductSchema.shape.boxSize.nullish(),
   })
 }
 
@@ -22,16 +23,18 @@ export const PackedStockRowSchema = z.object({
   product_id: relations.product.shape.id,
   product_code: relations.product.shape.code.nullish(),
   product_name: relations.product.shape.name.nullish(),
+  product_box_size: relations.product.shape.boxSize.nullish(),
 });
 
 export const PackedStockFromRow = PackedStockRowSchema.transform((row) => {
-  const { product_id, product_code, product_name, ...rest } = row;
+  const { product_id, product_code, product_name, product_box_size, ...rest } = row;
   return {
     ...rest,
     product: {
       id: product_id,
       code: product_code,
       name: product_name,
+      boxSize: product_box_size,
     }
   };
 });

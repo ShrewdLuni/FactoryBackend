@@ -1,0 +1,5 @@
+ALTER TABLE storage_entries
+ADD COLUMN written_off_at TIMESTAMPTZ;
+
+ALTER TABLE products
+ADD COLUMN box_size INTEGER NOT NULL DEFAULT 60;

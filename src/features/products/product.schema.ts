@@ -11,6 +11,7 @@ const shared = {
 
 const mapped = {
   isActive: z.boolean().default(true),
+  boxSize: z.int().positive().default(60),
 };
 
 const relations = {
@@ -29,10 +30,11 @@ export const ProductRowSchema = z.object({
   measure_unit_label: relations.measureUnit.shape.label,
   measure_unit_is_active: relations.measureUnit.shape.isActive,
   is_active: mapped.isActive,
+  box_size: mapped.boxSize,
 });
 
 export const ProductFromRow = ProductRowSchema.transform((db) => {
-  const { is_active, measure_unit_id, measure_unit_label, measure_unit_is_active, ...rest } = db;
+  const { is_active, box_size, measure_unit_id, measure_unit_label, measure_unit_is_active, ...rest } = db;
   return {
     ...rest,
     measureUnit: {
@@ -41,6 +43,7 @@ export const ProductFromRow = ProductRowSchema.transform((db) => {
       isActive: measure_unit_is_active,
     },
     isActive: db.is_active,
+    boxSize: box_size,
   };
 });
 

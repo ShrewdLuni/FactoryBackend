@@ -8,7 +8,6 @@ import {
 } from "./product.schema";
 import { query } from "db";
 import { QuantitiesByStatusFromRow, type QuantitiesByStatus } from "schemas/productQuantities";
-import z from "zod";
 import { DefectsByProductFromRow, type DefectsByProduct, type DefectsByProductRow } from "schemas/defectQuantities";
 
 export class ProductRepository extends Repository<Product, ProductRow, ProductLookup, ProductInsert> {
@@ -22,6 +21,7 @@ export class ProductRepository extends Repository<Product, ProductRow, ProductLo
       },
       isActive: "is_active",
       quantity: "quantity",
+      boxSize: "box_size",
     });
   }
 
