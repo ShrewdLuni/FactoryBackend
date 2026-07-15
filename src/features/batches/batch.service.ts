@@ -200,10 +200,12 @@ export class BatchService extends Service<Batch, BatchInsert, BatchLookup, Batch
             const updatedProduct = await this.productRepository.patch(batch.product.id, { quantity: product.quantity + addSize - remainder})
             await this.repository.patch(batch.id, { size: remainder, status: { id: labelingID }})
             toInsert.toStatus.id = labelingID;
+            toInsert.batch.size -= remainder 
             console.log(`Batch: ${batchId} | Actor: ${actorId}: 19.2.b. Labeling: \n\nUpdated Product: ${JSON.stringify(updatedProduct)},\nToInsert: ${JSON.stringify(toInsert)}`)
           }
         }
       }
+
       const newBatchTransition = await this.batchTransitionsRepository.create(toInsert)
       console.log(`Batch: ${batchId} | Actor: ${actorId}: 20. new batch transition created\nToInsert:${JSON.stringify(toInsert)}\n${JSON.stringify(newBatchTransition)}`)
       if (defects.length > 0) {
