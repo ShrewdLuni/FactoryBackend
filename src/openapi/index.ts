@@ -20,6 +20,7 @@ import { BatchTransitionSchema, BatchTransitionInsertSchema } from "features/bat
 import { paramsSchema } from "schemas/utils";
 import { packRequestSchema } from "schemas/productPack";
 import { shiftPaths } from "features/shifts/shift.openapi";
+import { ProductQuantitiesByMilestoneSchema } from "schemas/productInventory";
 
 export function generateOpenApiDoc() {
   return createDocument({
@@ -149,6 +150,18 @@ export function generateOpenApiDoc() {
                 "200": {
                   description: "OK",
                   content: { "application/json": { schema: DefectsByProductSchema.array() } },
+                },
+              },
+            },
+          },
+          "/products/inventory": {
+            get: {
+              tags: ["Product"],
+              operationId: "getProductInventory",
+              responses: {
+                "200": {
+                  description: "OK",
+                  content: { "application/json": { schema: ProductQuantitiesByMilestoneSchema.array() } },
                 },
               },
             },

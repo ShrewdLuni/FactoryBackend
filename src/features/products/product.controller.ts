@@ -22,6 +22,11 @@ export class ProductController extends Controller<Product, ProductInsert, Produc
     res.status(200).json(result);
   });
 
+  findInventory = asyncHandler(async (_req: express.Request, res: express.Response) => {
+    const result = await this.service.findInventory();
+    res.status(200).json(result);
+  });
+
   packProduct = asyncHandler(async (req: express.Request, res: express.Response) => {
     const { id } = paramsSchema.parse(req.params);
     const data = packRequestSchema.parse(req.body);

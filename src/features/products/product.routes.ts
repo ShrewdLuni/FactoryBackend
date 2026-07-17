@@ -14,6 +14,7 @@ router.post("/bulk/delete", controller.deleteMany);
 
 router.get("/quantities", controller.findQuantities);
 router.get("/defects", controller.findDefects);
+router.get("/inventory", controller.findInventory);
 
 router.get("/:id", controller.find);
 router.put("/:id", controller.update);

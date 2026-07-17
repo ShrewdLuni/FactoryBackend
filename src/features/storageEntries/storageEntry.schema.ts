@@ -8,7 +8,7 @@ const shared = {
 
 const mapped = {
   boxSize: z.int().positive(),
-  writtenOffAt: z.coerce.date().nullable(),
+  writtenOffAt: z.coerce.date().nullish(),
 };
 
 const relations = {

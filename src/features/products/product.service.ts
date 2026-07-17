@@ -6,6 +6,7 @@ import type { DefectsByProduct } from "schemas/defectQuantities";
 import type { StorageEntry, StorageEntryInsert } from "features/storageEntries/storageEntry.schema";
 import { StorageEntryRepository } from "features/storageEntries/storageEntry.repository";
 import { transaction } from "db";
+import type { ProductQuantitiesByMilestone } from "schemas/productInventory";
 
 export class ProductService extends Service<Product, ProductInsert, ProductLookup, ProductRepository> {
   private storageEntryRepository: StorageEntryRepository;
@@ -23,6 +24,11 @@ export class ProductService extends Service<Product, ProductInsert, ProductLooku
   async findDefects(): Promise<DefectsByProduct[]> {
     const defects = await this.repository.findDefects();
     return defects;
+  }
+
+  async findInventory(): Promise<ProductQuantitiesByMilestone[]> {
+    const inventory = await this.repository.findInventory();
+    return inventory;
   }
 
   async packProduct(id: number, boxSize: number, quantity: number): Promise<StorageEntry[]> {

@@ -9,6 +9,7 @@ import {
 import { query } from "db";
 import { QuantitiesByStatusFromRow, type QuantitiesByStatus } from "schemas/productQuantities";
 import { DefectsByProductFromRow, type DefectsByProduct, type DefectsByProductRow } from "schemas/defectQuantities";
+import { ProductQuantitiesByMilestoneFromRow, type ProductQuantitiesByMilestone, type ProductQuantitiesByMilestoneRow } from "schemas/productInventory";
 
 export class ProductRepository extends Repository<Product, ProductRow, ProductLookup, ProductInsert> {
   constructor() {
@@ -101,5 +102,76 @@ export class ProductRepository extends Repository<Product, ProductRow, ProductLo
       ORDER BY p.name;
     `);
     return DefectsByProductFromRow.array().parse(result.rows);
+  }
+
+  async findInventory(): Promise<ProductQuantitiesByMilestone[]> {
+    const result = await query<ProductQuantitiesByMilestoneRow>(`
+WITH milestones AS (
+  SELECT id, label, sort_order
+  FROM batch_statuses
+  WHERE is_milestone = TRUE AND is_active = TRUE
+),
+status_milestone_map AS (
+  -- maps every active status to the next milestone status (by sort_order) it belongs to
+  SELECT
+    bs.id AS status_id,
+    m.id AS milestone_id,
+    m.label AS milestone_label,
+    m.sort_order AS milestone_sort_order
+  FROM batch_statuses bs
+  JOIN LATERAL (
+    SELECT id, label, sort_order
+    FROM milestones
+    WHERE sort_order >= bs.sort_order
+    ORDER BY sort_order ASC
+    LIMIT 1
+  ) m ON TRUE
+  WHERE bs.is_active = TRUE
+),
+batch_sums AS (
+  SELECT
+    p.id AS product_id,
+    smm.milestone_id,
+    smm.milestone_label,
+    smm.milestone_sort_order,
+    COALESCE(SUM(b.size), 0) AS quantity
+  FROM products p
+  CROSS JOIN status_milestone_map smm
+  LEFT JOIN batches b
+    ON b.product_id = p.id
+   AND b.status_id = smm.status_id
+   AND b.is_active = TRUE
+  WHERE p.is_active = TRUE
+  GROUP BY p.id, smm.milestone_id, smm.milestone_label, smm.milestone_sort_order
+),
+storage_sums AS (
+  SELECT
+    product_id,
+    COALESCE(SUM(box_size), 0) AS storage_quantity
+  FROM storage_entries
+  WHERE written_off_at IS NULL
+  GROUP BY product_id
+)
+SELECT
+  p.id AS product_id,
+  p.name AS product_name,
+  JSON_AGG(
+    JSON_BUILD_OBJECT(
+      'milestoneId', bsu.milestone_id,
+      'milestoneLabel', bsu.milestone_label,
+      'quantity', bsu.quantity
+    ) ORDER BY bsu.milestone_sort_order
+  ) AS milestone_sums,
+  p.quantity AS ready_quantity,
+  COALESCE(ss.storage_quantity, 0) AS storage_quantity,
+  SUM(bsu.quantity) + p.quantity + COALESCE(ss.storage_quantity, 0) AS total_quantity
+FROM products p
+JOIN batch_sums bsu ON bsu.product_id = p.id
+LEFT JOIN storage_sums ss ON ss.product_id = p.id
+WHERE p.is_active = TRUE
+GROUP BY p.id, p.name, p.quantity, ss.storage_quantity
+ORDER BY p.name;
+    `)
+    return ProductQuantitiesByMilestoneFromRow.array().parse(result.rows);
   }
 }
